@@ -54,6 +54,7 @@ func initLogging(traceHandle io.Writer, infoHandle io.Writer) {
 type registryKeys struct {
 	rootKey registry.Key
 	path    string
+	flags   uint32
 }
 
 // this struct is used for filling in software attributes for most current stable
@@ -139,13 +140,13 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 	for _, installedComponent := range installedSoftware {
 		searchName := strings.Split(installedComponent.displayName, ".")[0]
 		if searchName != "" {
-			for statKey, statValue := range softwareReleaseStatii {
-				searchStatKey := strings.Split(statKey, ".")[0]
+			for _, statValue := range softwareReleaseStatii {
+				searchStatiiName := strings.Split(statValue.Product, ".")[0]
 
 				//fmt.Println("checking if", searchName, " contains ", searchStatKey)
-				if strings.Contains(searchName, searchStatKey) || strings.Contains(searchStatKey, searchName) {
+				if strings.Contains(searchName, searchStatiiName) || strings.Contains(searchStatiiName, searchName) {
 					//fmt.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)\n", installedComponent.displayName, installedComponent.displayVersion, statKey, statValue.Version)
-					Info.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)", installedComponent.displayName, installedComponent.displayVersion, statKey, statValue.Version)
+					Info.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)", installedComponent.displayName, installedComponent.displayVersion, statValue.Product, statValue.Version)
 				}
 			}
 		}
@@ -185,31 +186,34 @@ func getWindowsVersion() (CurrentMajorVersionNumber, CurrentMinorVersionNumber u
 func getInstalledSoftware() (map[string]installedSoftwareComponent, error) {
 	// Software from Uninstall registry keys
 	regKeysUninstall := []registryKeys{
-		{registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall"},
-		{registry.LOCAL_MACHINE, "SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall"},
-		{registry.CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall"},
+		//HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall
+		//{registry.LOCAL_MACHINE, "\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Mozilla Firefox 61.0.2 (x64 de)"},
+		{registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", registry.READ | registry.WOW64_64KEY},
+		{registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", registry.READ | registry.WOW64_32KEY},
+		{registry.CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", registry.READ},
 	}
 
 	foundSoftware := make(map[string]installedSoftwareComponent)
 
 	for i := 0; i < len(regKeysUninstall); i++ {
-		//Info.Printf("%d:%s", regKeysUninstall[i].rootKey, regKeysUninstall[i].path)
-		key, err := registry.OpenKey(regKeysUninstall[i].rootKey, regKeysUninstall[i].path, registry.READ)
+		Info.Printf("%d:%s", regKeysUninstall[i].rootKey, regKeysUninstall[i].path)
+		key, err := registry.OpenKey(regKeysUninstall[i].rootKey, regKeysUninstall[i].path, regKeysUninstall[i].flags)
 		if err != nil {
 			Info.Printf("Could not open registry key %s due to error %s", regKeysUninstall[i].path, err.Error())
 			return nil, errors.New(fmt.Sprintf("Could not open registry key %s due to error %s", regKeysUninstall[i].path, err.Error()))
 		}
 		defer key.Close()
 
-		keyInfo, _ := key.Stat()
-		subKeys, err := key.ReadSubKeyNames(int(keyInfo.SubKeyCount))
+		//keyInfo, _ := key.Stat()
+		//Info.Printf("Number of subkeys: %i", int(keyInfo.SubKeyCount))
+		subKeys, err := key.ReadSubKeyNames(0)
 		if err != nil {
 			Info.Printf("Could not read sub keys of registry key %s due to error %s", regKeysUninstall[i].path, err.Error())
 			return nil, errors.New(fmt.Sprintf("Could not read sub keys of registry key %s due to error %s", regKeysUninstall[i].path, err.Error()))
 		}
 
 		for j := 0; j < len(subKeys); j++ {
-			subKey, err := registry.OpenKey(regKeysUninstall[i].rootKey, regKeysUninstall[i].path+"\\"+subKeys[j], registry.READ)
+			subKey, err := registry.OpenKey(regKeysUninstall[i].rootKey, regKeysUninstall[i].path+"\\"+subKeys[j], regKeysUninstall[i].flags)
 			if err != nil {
 				Info.Printf("Could not open registry key %s due to error %s", subKeys[j], err.Error())
 				return nil, errors.New(fmt.Sprintf("Could not open registry key %s due to error %s", subKeys[j], err.Error()))
