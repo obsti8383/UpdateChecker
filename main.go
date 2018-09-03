@@ -134,10 +134,12 @@ func main() {
 
 // tries to find matches between installed software components and
 // software release statii.
-// works at least for Firefox, Chrome and Teamviewer (in current versions)
+// works at least for Firefox, Chrome, OpenVPN and Teamviewer (in current versions)
 // TODO: Does not do anything right now beneath logging
 func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftwareComponent, softwareReleaseStatii map[string]softwareReleaseStatus) {
-	for _, installedComponent := range installedSoftware {
+	for regKey, installedComponent := range installedSoftware {
+		var upToDate = false
+		var found = false
 		searchName := strings.Split(installedComponent.displayName, ".")[0]
 		if searchName != "" {
 			for _, statValue := range softwareReleaseStatii {
@@ -146,17 +148,27 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 				//fmt.Println("checking if", searchName, " contains ", searchStatKey)
 				if strings.Contains(searchName, searchStatiiName) || strings.Contains(searchStatiiName, searchName) {
 					//fmt.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)\n", installedComponent.displayName, installedComponent.displayVersion, statKey, statValue.Version)
-					Info.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)", installedComponent.displayName, installedComponent.displayVersion, statValue.Product, statValue.Version)
+					Trace.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)", installedComponent.displayName, installedComponent.displayVersion, statValue.Product, statValue.Version)
+					found = true
+					if strings.HasPrefix(installedComponent.displayVersion, statValue.Version) {
+						upToDate = true
+					}
 				}
 			}
 		}
+		if upToDate {
+			Info.Printf("%s seems up to date (%s)", installedComponent.displayName, installedComponent.displayVersion)
+		} else if found {
+			Info.Printf("%s seems outdated!! (%s)", installedComponent.displayName, installedComponent.displayVersion)
+		} else {
+			Info.Printf("No Information for %s (%s)", installedComponent.displayName, regKey)
+		}
 	}
-
 }
 
 // gets Windows version numbers (Major, Minor and CurrentBuild)
 func getWindowsVersion() (CurrentMajorVersionNumber, CurrentMinorVersionNumber uint64, CurrentBuild string, err error) {
-	k, err := registry.OpenKey(registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", registry.QUERY_VALUE)
+	k, err := registry.OpenKey(registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", registry.ENUMERATE_SUB_KEYS|registry.QUERY_VALUE)
 	if err != nil {
 		return 0, 0, "", errors.New("Could not get version information from registry")
 	}
@@ -188,9 +200,9 @@ func getInstalledSoftware() (map[string]installedSoftwareComponent, error) {
 	regKeysUninstall := []registryKeys{
 		//HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall
 		//{registry.LOCAL_MACHINE, "\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Mozilla Firefox 61.0.2 (x64 de)"},
-		{registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", registry.READ | registry.WOW64_64KEY},
-		{registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", registry.READ | registry.WOW64_32KEY},
-		{registry.CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", registry.READ},
+		{registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", registry.ENUMERATE_SUB_KEYS | registry.QUERY_VALUE | registry.WOW64_64KEY},
+		{registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", registry.ENUMERATE_SUB_KEYS | registry.QUERY_VALUE | registry.WOW64_32KEY},
+		{registry.CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", registry.ENUMERATE_SUB_KEYS | registry.QUERY_VALUE},
 	}
 
 	foundSoftware := make(map[string]installedSoftwareComponent)
