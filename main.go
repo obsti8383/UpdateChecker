@@ -251,6 +251,7 @@ func getSoftwareVersionsFromVergrabber() map[string]softwareReleaseStatus {
 	softwareReleaseStatii := map[string]softwareReleaseStatus{}
 
 	// get JSON
+	// TODO: cache vergrabber.json
 	url := "http://vergrabber.kingu.pl/vergrabber.json"
 	resp, err := http.Get(url)
 	// handle the error if there is one
