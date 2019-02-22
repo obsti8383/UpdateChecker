@@ -128,30 +128,22 @@ func main() {
 		return installedSoftwareMappings[i].Status < installedSoftwareMappings[j].Status
 	})
 
-	// TODO: get patch level
-	/* TODO (from https://github.com/Jean13/CVE_Compare/tree/master/go):
-
-	# Get list of installed KB's
-
-	wmic qfe get HotFixID","InstalledOn
-
-	$get_kb = wmic qfe get HotFixID
-
-	$kb_file = "kb_list.txt"
-
-	$get_kb >> $kb_file
-	*/
-
-	// TODO: verify OS patch level against Vergrabber
+	// verify OS patch level against Vergrabber
 	windowsMapping, err := verifyOSPatchlevel(windowsVersion, softwareReleaseStatii)
 	if err != nil {
 		Info.Printf(err.Error())
 	}
 	Trace.Printf("WindowsMapping: %#v\n", windowsMapping)
 
+	// create Combined Mapping for Windows itself and installed software
+	newMappings := make([]installedSoftwareMapping, 0)
+	newMappings = append(newMappings, windowsMapping)
+	installedSoftwareMappings = append(newMappings, installedSoftwareMappings...)
+
 	//t, _ := template.ParseFiles("main.html")
 	//t.Execute(os.Stdout, installedSoftwareMappings)
 
+	// present with Webserver
 	http.HandleFunc("/", mainHttpHandler) // setting router rule
 	listener, err := net.Listen("tcp", "localhost:3000")
 	if err != nil {
