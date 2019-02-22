@@ -61,11 +61,6 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 				MappedStatus:      mappedStatValue,
 			})
 			Info.Printf("%s seems up to date (%s)", installedComponent.DisplayName, installedComponent.DisplayVersion)
-
-			/*const STATUS_OUTDATED = 0
-			const STATUS_UPTODATE = 1
-			const STATUS_UNKNOWN = 2
-			}*/
 		} else if found {
 			returnMapping = append(returnMapping, installedSoftwareMapping{
 				Name:              installedComponent.DisplayName,
@@ -81,7 +76,7 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 				InstalledSoftware: installedComponent,
 				MappedStatus:      mappedStatValue,
 			})
-			Info.Printf("No Information for %s (%s)", installedComponent.DisplayName, regKey)
+			Trace.Printf("No Information for %s (%s)", installedComponent.DisplayName, regKey)
 		}
 	}
 
@@ -103,9 +98,7 @@ func verifyOSPatchlevel(windowsVersion WindowsVersion, softwareReleaseStatii map
 		Trace.Println("windowsVersionString: ", windowsVersionString)
 		uptodateRelease := softwareReleaseStatii[windowsReleaseName]
 		Trace.Println("uptodateRelease: ", uptodateRelease)
-		// Name:"Microsoft Windows 10", MajorRelease:"1809", Stable:true,
-		// Version:"17763.316", Latest:true, Ends:"2020-05-12", Edition:"1809",
-		// Product:"Microsoft Windows 10", Released:"2019-02-12"},
+
 		if uptodateRelease.Version == windowsVersionString {
 			status = STATUS_UPTODATE
 		} else {

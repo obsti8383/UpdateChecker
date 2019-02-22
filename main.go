@@ -20,16 +20,12 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"net"
-	"net/http"
 	"os"
 	"sort"
 	"strings"
 )
 
 const logpath = "UpdateChecker.log"
-
-var installedSoftwareMappings []installedSoftwareMapping
 
 // Loggers for log output (we only need info and trace, errors have to be
 // displayed in the GUI)
@@ -91,6 +87,8 @@ func main() {
 	}
 	initLogging(logfile, logfile)
 
+	var installedSoftwareMappings []installedSoftwareMapping
+
 	// fetch Windows version
 	windowsVersion, err := getWindowsVersion()
 	if err == nil {
@@ -144,24 +142,6 @@ func main() {
 	newMappings = append(newMappings, windowsMapping)
 	installedSoftwareMappings = append(newMappings, installedSoftwareMappings...)
 
-	//t, _ := template.ParseFiles("main.html")
-	//t.Execute(os.Stdout, installedSoftwareMappings)
-
-	// present with Webserver
-	http.HandleFunc("/", mainHttpHandler) // setting router rule
-	listener, err := net.Listen("tcp", "localhost:3000")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// open browser
-	err = openBrowser("http://localhost:3000/")
-	if err != nil {
-		log.Println(err)
-	}
-
-	// Start the blocking server loop.
-	log.Fatal(http.Serve(listener, nil))
-
+	outputResultsInBrowser(installedSoftwareMappings)
 	return
 }

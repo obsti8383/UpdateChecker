@@ -17,22 +17,13 @@
 package main
 
 import (
-	"fmt"
+	"bufio"
 	"html/template"
-	"net/http"
+	"log"
+	"os"
 	"os/exec"
 	"runtime"
 )
-
-func mainHttpHandler(w http.ResponseWriter, r *http.Request) {
-	//fmt.Println("method:", r.Method) //get request method
-	if r.Method == "GET" {
-		t, _ := template.ParseFiles("main.html")
-		t.Execute(w, installedSoftwareMappings)
-	} else {
-		fmt.Fprintf(w, "Not supported!")
-	}
-}
 
 // open opens the specified URL in the default browser of the user.
 func openBrowser(url string) error {
@@ -50,4 +41,28 @@ func openBrowser(url string) error {
 	}
 	args = append(args, url)
 	return exec.Command(cmd, args...).Start()
+}
+
+func outputResultsInBrowser(installedSoftwareMappings []installedSoftwareMapping) {
+	// Write HTML output
+	outputFile, err := os.Create("updatechecker_result.html")
+	if err != nil {
+		Info.Println(err)
+		log.Fatal(err)
+	}
+	defer outputFile.Close()
+	outputWriter := bufio.NewWriter(outputFile)
+
+	// TODO: put Bootstrap CSS and Javascripts in local directory instead
+	//       of fetching them from the cloud
+	t, _ := template.ParseFiles("main.html")
+	t.Execute(outputWriter, installedSoftwareMappings)
+	outputWriter.Flush()
+	outputFile.Close()
+
+	// open browser
+	err = openBrowser("updatechecker_result.html")
+	if err != nil {
+		Info.Println(err)
+	}
 }
