@@ -18,14 +18,14 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 )
 
 // tries to find matches between installed software components and
 // software release statii.
-// works at least for Firefox, Chrome, OpenVPN and Teamviewer (in current versions)
-// TODO: Does not do anything right now beneath logging
+// works at least for Firefox, Chrome, OpenVPN, Adobe Flash and Teamviewer (in current versions)
 func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftwareComponent, softwareReleaseStatii map[string]softwareReleaseStatus) []installedSoftwareMapping {
 	var returnMapping []installedSoftwareMapping
 
@@ -35,17 +35,20 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 		var mappedStatValue softwareReleaseStatus
 		searchName := strings.Split(installedComponent.DisplayName, ".")[0]
 		if searchName != "" {
-			for _, statValue := range softwareReleaseStatii {
-				searchStatiiName := strings.Split(statValue.Product, ".")[0]
-
-				//fmt.Println("checking if", searchName, " contains ", searchStatKey)
-				if strings.Contains(searchName, searchStatiiName) || strings.Contains(searchStatiiName, searchName) {
-					//fmt.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)\n", installedComponent.displayName, installedComponent.displayVersion, statKey, statValue.Version)
-					Trace.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)", installedComponent.DisplayName, installedComponent.DisplayVersion, statValue.Product, statValue.Version)
+			for statName, statValue := range softwareReleaseStatii {
+				statNameArray := strings.Split(statName, " ")
+				if len(statNameArray) > 2 {
+					statName = statNameArray[0] + " " + statNameArray[1]
+				}
+				//fmt.Printf("statName: %s\n", statName)
+				if strings.Contains(searchName, statName) || strings.Contains(statName, searchName) {
+					fmt.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)\n", installedComponent.DisplayName, installedComponent.DisplayVersion, statName, statValue.Version)
+					Trace.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)", installedComponent.DisplayName, installedComponent.DisplayVersion, statName, statValue.Version)
 					found = true
 					mappedStatValue = statValue
-					if strings.HasPrefix(installedComponent.DisplayVersion, statValue.Version) {
+					if installedComponent.DisplayVersion == statValue.Version {
 						upToDate = true
+						break
 					}
 				}
 			}

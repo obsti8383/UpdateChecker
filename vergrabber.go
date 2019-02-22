@@ -18,7 +18,6 @@ package main
 
 import (
 	"encoding/json"
-
 	"io/ioutil"
 )
 
@@ -46,20 +45,22 @@ func getSoftwareVersionsFromVergrabber() map[string]softwareReleaseStatus {
 	//	panic(err)
 	//}
 
-	Info.Printf("%s\n", jsonFromVergrabber)
+	//Trace.Printf("%s\n", jsonFromVergrabber)
 
 	// parse JSON
 	var f map[string]map[string]map[string]softwareReleaseStatus
 	err = json.Unmarshal(jsonFromVergrabber, &f)
 
-	for _, valueSoftwareType := range f {
+	for softwareType, valueSoftwareType := range f {
 		//fmt.Println("Typ:", softwareType)
-		for softwareName, softwareDetails := range valueSoftwareType {
-			//fmt.Println("Name:", softwareName)
-			for softwareVersion, softwareVersionDetails := range softwareDetails {
-				softwareVersionDetails.Name = softwareName
-				softwareVersionDetails.MajorRelease = softwareVersion
-				softwareReleaseStatii[softwareName+" "+softwareVersion] = softwareVersionDetails
+		if softwareType == "client" || softwareType == "server" {
+			for softwareName, softwareDetails := range valueSoftwareType {
+				//fmt.Println("Name:", softwareName)
+				for softwareVersion, softwareVersionDetails := range softwareDetails {
+					softwareVersionDetails.Name = softwareName
+					softwareVersionDetails.MajorRelease = softwareVersion
+					softwareReleaseStatii[softwareName+" "+softwareVersion] = softwareVersionDetails
+				}
 			}
 		}
 	}

@@ -24,6 +24,7 @@ import (
 	"net/http"
 	"os"
 	"sort"
+	"strings"
 )
 
 const logpath = "UpdateChecker.log"
@@ -106,7 +107,7 @@ func main() {
 	foundSoftware, err := getInstalledSoftware()
 	if err == nil {
 		for key, soft := range foundSoftware {
-			Info.Printf("%s: %s %s (%s)", key, soft.DisplayName, soft.DisplayVersion, soft.Publisher)
+			Trace.Printf("%s: %s %s (%s)", key, soft.DisplayName, soft.DisplayVersion, soft.Publisher)
 		}
 	} else {
 		return
@@ -122,10 +123,13 @@ func main() {
 
 	// sort installed software mappings
 	sort.Slice(installedSoftwareMappings, func(i, j int) bool {
-		return installedSoftwareMappings[i].Name < installedSoftwareMappings[j].Name
-	})
-	sort.Slice(installedSoftwareMappings, func(i, j int) bool {
-		return installedSoftwareMappings[i].Status < installedSoftwareMappings[j].Status
+		if installedSoftwareMappings[i].Status < installedSoftwareMappings[j].Status {
+			return true
+		} else if installedSoftwareMappings[i].Status > installedSoftwareMappings[j].Status {
+			return false
+		} else {
+			return strings.ToUpper(installedSoftwareMappings[i].Name) < strings.ToUpper(installedSoftwareMappings[j].Name)
+		}
 	})
 
 	// verify OS patch level against Vergrabber
