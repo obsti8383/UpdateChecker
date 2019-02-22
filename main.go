@@ -1,5 +1,5 @@
 // Update Checker
-// Copyright (C) 2018  Florian Probst
+// Copyright (C) 2019  Florian Probst
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,17 +20,24 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"html/template"
 	"io"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"os"
+	"os/exec"
+	"runtime"
+	"sort"
 	"strings"
 
 	"golang.org/x/sys/windows/registry"
 )
 
 const logpath = "UpdateChecker.log"
+
+var installedSoftwareMappings []installedSoftwareMapping
 
 // Loggers for log output (we only need info and trace, errors have to be
 // displayed in the GUI)
@@ -75,9 +82,20 @@ type softwareReleaseStatus struct {
 // this struct is used for filling in software attributes for software
 // that is actually installed on the system
 type installedSoftwareComponent struct {
-	displayName    string
-	displayVersion string
-	publisher      string
+	DisplayName    string
+	DisplayVersion string
+	Publisher      string
+}
+
+const STATUS_OUTDATED = 0
+const STATUS_UPTODATE = 1
+const STATUS_UNKNOWN = 2
+
+type installedSoftwareMapping struct {
+	Name              string
+	Status            int
+	InstalledSoftware installedSoftwareComponent
+	MappedStatus      softwareReleaseStatus
 }
 
 func main() {
@@ -100,7 +118,7 @@ func main() {
 	foundSoftware, err := getInstalledSoftware()
 	if err == nil {
 		for key, soft := range foundSoftware {
-			Info.Printf("%s: %s %s (%s)", key, soft.displayName, soft.displayVersion, soft.publisher)
+			Info.Printf("%s: %s %s (%s)", key, soft.DisplayName, soft.DisplayVersion, soft.Publisher)
 		}
 	} else {
 		return
@@ -108,10 +126,19 @@ func main() {
 
 	// fetch software current release information from Vergrabber
 	softwareReleaseStatii := getSoftwareVersionsFromVergrabber()
-	Trace.Printf("Software Releases from Vergrabber: %s", softwareReleaseStatii)
+	Trace.Printf(fmt.Sprintf("Software Releases from Vergrabber: %#v\n", softwareReleaseStatii))
 	//fmt.Println("Software Releases from Vergrabber:\n", softwareReleaseStatii)
 
-	verifyInstalledSoftwareVersions(foundSoftware, softwareReleaseStatii)
+	// get mappings between installed software and currentReleases
+	installedSoftwareMappings = verifyInstalledSoftwareVersions(foundSoftware, softwareReleaseStatii)
+
+	// sort installed software mappings
+	sort.Slice(installedSoftwareMappings, func(i, j int) bool {
+		return installedSoftwareMappings[i].Name < installedSoftwareMappings[j].Name
+	})
+	sort.Slice(installedSoftwareMappings, func(i, j int) bool {
+		return installedSoftwareMappings[i].Status < installedSoftwareMappings[j].Status
+	})
 
 	// TODO: get patch level
 	/* TODO (from https://github.com/Jean13/CVE_Compare/tree/master/go):
@@ -127,7 +154,32 @@ func main() {
 	$get_kb >> $kb_file
 	*/
 
-	// TODO: verify patch level against Vergrabber
+	// TODO: verify OS patch level against Vergrabber
+
+	//t, _ := template.ParseFiles("main.html")
+	//t.Execute(os.Stdout, installedSoftwareMappings)
+
+	http.HandleFunc("/", mainHttp) // setting router rule
+	//http.HandleFunc("/login", login)
+	/*err = http.ListenAndServe(":9090", nil) // setting listening port
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}*/
+
+	listener, err := net.Listen("tcp", "localhost:3000")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// The browser can connect now because the listening socket is open.
+
+	err = open("http://localhost:3000/")
+	if err != nil {
+		log.Println(err)
+	}
+
+	// Start the blocking server loop.
+	log.Fatal(http.Serve(listener, nil))
 
 	return
 }
@@ -136,11 +188,14 @@ func main() {
 // software release statii.
 // works at least for Firefox, Chrome, OpenVPN and Teamviewer (in current versions)
 // TODO: Does not do anything right now beneath logging
-func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftwareComponent, softwareReleaseStatii map[string]softwareReleaseStatus) {
+func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftwareComponent, softwareReleaseStatii map[string]softwareReleaseStatus) []installedSoftwareMapping {
+	var returnMapping []installedSoftwareMapping
+
 	for regKey, installedComponent := range installedSoftware {
 		var upToDate = false
 		var found = false
-		searchName := strings.Split(installedComponent.displayName, ".")[0]
+		var mappedStatValue softwareReleaseStatus
+		searchName := strings.Split(installedComponent.DisplayName, ".")[0]
 		if searchName != "" {
 			for _, statValue := range softwareReleaseStatii {
 				searchStatiiName := strings.Split(statValue.Product, ".")[0]
@@ -148,22 +203,48 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 				//fmt.Println("checking if", searchName, " contains ", searchStatKey)
 				if strings.Contains(searchName, searchStatiiName) || strings.Contains(searchStatiiName, searchName) {
 					//fmt.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)\n", installedComponent.displayName, installedComponent.displayVersion, statKey, statValue.Version)
-					Trace.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)", installedComponent.displayName, installedComponent.displayVersion, statValue.Product, statValue.Version)
+					Trace.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)", installedComponent.DisplayName, installedComponent.DisplayVersion, statValue.Product, statValue.Version)
 					found = true
-					if strings.HasPrefix(installedComponent.displayVersion, statValue.Version) {
+					mappedStatValue = statValue
+					if strings.HasPrefix(installedComponent.DisplayVersion, statValue.Version) {
 						upToDate = true
 					}
 				}
 			}
 		}
 		if upToDate {
-			Info.Printf("%s seems up to date (%s)", installedComponent.displayName, installedComponent.displayVersion)
+			returnMapping = append(returnMapping, installedSoftwareMapping{
+				Name:              installedComponent.DisplayName,
+				Status:            STATUS_UPTODATE,
+				InstalledSoftware: installedComponent,
+				MappedStatus:      mappedStatValue,
+			})
+			Info.Printf("%s seems up to date (%s)", installedComponent.DisplayName, installedComponent.DisplayVersion)
+
+			/*const STATUS_OUTDATED = 0
+			const STATUS_UPTODATE = 1
+			const STATUS_UNKNOWN = 2
+			}*/
 		} else if found {
-			Info.Printf("%s seems outdated!! (%s)", installedComponent.displayName, installedComponent.displayVersion)
+			returnMapping = append(returnMapping, installedSoftwareMapping{
+				Name:              installedComponent.DisplayName,
+				Status:            STATUS_OUTDATED,
+				InstalledSoftware: installedComponent,
+				MappedStatus:      mappedStatValue,
+			})
+			Info.Printf("%s seems outdated!! (%s)", installedComponent.DisplayName, installedComponent.DisplayVersion)
 		} else {
-			Info.Printf("No Information for %s (%s)", installedComponent.displayName, regKey)
+			returnMapping = append(returnMapping, installedSoftwareMapping{
+				Name:              installedComponent.DisplayName,
+				Status:            STATUS_UNKNOWN,
+				InstalledSoftware: installedComponent,
+				MappedStatus:      mappedStatValue,
+			})
+			Info.Printf("No Information for %s (%s)", installedComponent.DisplayName, regKey)
 		}
 	}
+
+	return returnMapping
 }
 
 // gets Windows version numbers (Major, Minor and CurrentBuild)
@@ -198,8 +279,6 @@ func getWindowsVersion() (CurrentMajorVersionNumber, CurrentMinorVersionNumber u
 func getInstalledSoftware() (map[string]installedSoftwareComponent, error) {
 	// Software from Uninstall registry keys
 	regKeysUninstall := []registryKeys{
-		//HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall
-		//{registry.LOCAL_MACHINE, "\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Mozilla Firefox 61.0.2 (x64 de)"},
 		{registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", registry.ENUMERATE_SUB_KEYS | registry.QUERY_VALUE | registry.WOW64_64KEY},
 		{registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", registry.ENUMERATE_SUB_KEYS | registry.QUERY_VALUE | registry.WOW64_32KEY},
 		{registry.CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", registry.ENUMERATE_SUB_KEYS | registry.QUERY_VALUE},
@@ -233,6 +312,9 @@ func getInstalledSoftware() (map[string]installedSoftwareComponent, error) {
 			defer subKey.Close()
 
 			displayName, _, _ := subKey.GetStringValue("DisplayName")
+			if displayName == "" {
+				displayName = subKeys[j]
+			}
 			displayVersion, _, _ := subKey.GetStringValue("DisplayVersion")
 			publisher, _, _ := subKey.GetStringValue("Publisher")
 			Trace.Printf("getInstalledSoftware: %s: %s %s (%s)", subKeys[j], displayName, displayVersion, publisher)
@@ -252,22 +334,24 @@ func getSoftwareVersionsFromVergrabber() map[string]softwareReleaseStatus {
 
 	// get JSON
 	// TODO: cache vergrabber.json
-	url := "http://vergrabber.kingu.pl/vergrabber.json"
-	resp, err := http.Get(url)
+	//url := "http://vergrabber.kingu.pl/vergrabber.json"
+	//resp, err := http.Get(url)
+	/// read from file system for now
+	jsonFromVergrabber, err := ioutil.ReadFile("vergrabber.json")
 	// handle the error if there is one
 	if err != nil {
 		panic(err)
 	}
 	// do this now so it won't be forgotten
-	defer resp.Body.Close()
+	//defer resp.Body.Close()
 
 	// reads json as a slice of bytes
-	jsonFromVergrabber, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
-	}
+	//jsonFromVergrabber, err := ioutil.ReadAll(resp.Body)
+	//if err != nil {
+	//	panic(err)
+	//}
 
-	//Info.Printf("%s\n", jsonFromVergrabber)
+	Info.Printf("%s\n", jsonFromVergrabber)
 
 	// parse JSON
 	var f map[string]map[string]map[string]softwareReleaseStatus
@@ -290,4 +374,32 @@ func getSoftwareVersionsFromVergrabber() map[string]softwareReleaseStatus {
 	}
 
 	return softwareReleaseStatii
+}
+
+func mainHttp(w http.ResponseWriter, r *http.Request) {
+	//fmt.Println("method:", r.Method) //get request method
+	if r.Method == "GET" {
+		t, _ := template.ParseFiles("main.html")
+		t.Execute(w, installedSoftwareMappings)
+	} else {
+		fmt.Fprintf(w, "Not supported!")
+	}
+}
+
+// open opens the specified URL in the default browser of the user.
+func open(url string) error {
+	var cmd string
+	var args []string
+
+	switch runtime.GOOS {
+	case "windows":
+		cmd = "cmd"
+		args = []string{"/c", "start"}
+	case "darwin":
+		cmd = "open"
+	default: // "linux", "freebsd", "openbsd", "netbsd"
+		cmd = "xdg-open"
+	}
+	args = append(args, url)
+	return exec.Command(cmd, args...).Start()
 }
