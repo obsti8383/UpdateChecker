@@ -91,9 +91,13 @@ func main() {
 	initLogging(logfile, logfile)
 
 	// fetch Windows version
-	maj, min, cb, err := getWindowsVersion()
+	windowsVersion, err := getWindowsVersion()
 	if err == nil {
-		Info.Printf("Windows Version: %d.%d.%s", maj, min, cb)
+		Info.Printf("Windows Version: %d.%d.%s.%d",
+			windowsVersion.CurrentMajorVersionNumber,
+			windowsVersion.CurrentMinorVersionNumber,
+			windowsVersion.CurrentBuild, windowsVersion.UBR)
+		Info.Printf("Windows Release ID: %s", windowsVersion.ReleaseId)
 	} else {
 		Info.Printf("Error getting Windows Version: %s", err)
 	}
@@ -139,6 +143,11 @@ func main() {
 	*/
 
 	// TODO: verify OS patch level against Vergrabber
+	windowsMapping, err := verifyOSPatchlevel(windowsVersion, softwareReleaseStatii)
+	if err != nil {
+		Info.Printf(err.Error())
+	}
+	Trace.Printf("WindowsMapping: %#v\n", windowsMapping)
 
 	//t, _ := template.ParseFiles("main.html")
 	//t.Execute(os.Stdout, installedSoftwareMappings)

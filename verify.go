@@ -17,6 +17,8 @@
 package main
 
 import (
+	"errors"
+	"strconv"
 	"strings"
 )
 
@@ -81,4 +83,42 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 	}
 
 	return returnMapping
+}
+
+// verify OS patchlevel
+func verifyOSPatchlevel(windowsVersion WindowsVersion, softwareReleaseStatii map[string]softwareReleaseStatus) (installedSoftwareMapping, error) {
+	var status int
+
+	if windowsVersion.CurrentMajorVersionNumber == 10 {
+		// Windows 10
+		windowsReleaseName := "Microsoft Windows 10 " + string(windowsVersion.ReleaseId)
+		Trace.Println("windowsReleaseName: ", windowsReleaseName)
+		Trace.Println("windowsVersion.UBR: ", windowsVersion.UBR)
+		Trace.Println("string(windowsVersion.UBR): ", strconv.FormatUint(windowsVersion.UBR, 10))
+
+		windowsVersionString := windowsVersion.CurrentBuild + "." + strconv.FormatUint(windowsVersion.UBR, 10)
+		Trace.Println("windowsVersionString: ", windowsVersionString)
+		uptodateRelease := softwareReleaseStatii[windowsReleaseName]
+		Trace.Println("uptodateRelease: ", uptodateRelease)
+		// Name:"Microsoft Windows 10", MajorRelease:"1809", Stable:true,
+		// Version:"17763.316", Latest:true, Ends:"2020-05-12", Edition:"1809",
+		// Product:"Microsoft Windows 10", Released:"2019-02-12"},
+		if uptodateRelease.Version == windowsVersionString {
+			status = STATUS_UPTODATE
+		} else {
+			status = STATUS_OUTDATED
+		}
+
+		return installedSoftwareMapping{
+			Name:   "Microsoft Windows 10",
+			Status: status,
+			InstalledSoftware: installedSoftwareComponent{
+				DisplayName:    windowsReleaseName,
+				DisplayVersion: windowsVersionString,
+				Publisher:      "Microsoft",
+			},
+			MappedStatus: uptodateRelease,
+		}, nil
+	}
+	return installedSoftwareMapping{}, errors.New("Could not find corresponding windows version")
 }

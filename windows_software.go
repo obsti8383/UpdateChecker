@@ -23,41 +23,6 @@ import (
 	"golang.org/x/sys/windows/registry"
 )
 
-// struct for the registry keys needed to read out installed software
-type registryKeys struct {
-	rootKey registry.Key
-	path    string
-	flags   uint32
-}
-
-// gets Windows version numbers (Major, Minor and CurrentBuild)
-func getWindowsVersion() (CurrentMajorVersionNumber, CurrentMinorVersionNumber uint64, CurrentBuild string, err error) {
-	k, err := registry.OpenKey(registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", registry.ENUMERATE_SUB_KEYS|registry.QUERY_VALUE)
-	if err != nil {
-		return 0, 0, "", errors.New("Could not get version information from registry")
-	}
-	defer k.Close()
-
-	// BUG: This does not work with Windows 8.1! There is only CurrentBuild and CurrentVersion (which include Major and Minor, e.g. "6.3")
-
-	maj, _, err := k.GetIntegerValue("CurrentMajorVersionNumber")
-	if err != nil {
-		return 0, 0, "", errors.New("Could not get version information from registry")
-	}
-
-	min, _, err := k.GetIntegerValue("CurrentMinorVersionNumber")
-	if err != nil {
-		return maj, 0, "", errors.New("Could not get version information from registry")
-	}
-
-	cb, _, err := k.GetStringValue("CurrentBuild")
-	if err != nil {
-		return maj, min, "", errors.New("Could not get version information from registry")
-	}
-
-	return maj, min, cb, nil
-}
-
 // reads installed software from Microsoft Windows official registry keys
 func getInstalledSoftware() (map[string]installedSoftwareComponent, error) {
 	// Software from Uninstall registry keys
