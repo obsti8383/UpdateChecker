@@ -17,22 +17,13 @@
 package main
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
-	"html/template"
 	"io"
-	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
 	"os"
-	"os/exec"
-	"runtime"
 	"sort"
-	"strings"
-
-	"golang.org/x/sys/windows/registry"
 )
 
 const logpath = "UpdateChecker.log"
@@ -55,13 +46,6 @@ func initLogging(traceHandle io.Writer, infoHandle io.Writer) {
 	Info = log.New(infoHandle,
 		"INFO: ",
 		log.Ldate|log.Ltime|log.Lshortfile)
-}
-
-// struct for the registry keys needed to read out installed software
-type registryKeys struct {
-	rootKey registry.Key
-	path    string
-	flags   uint32
 }
 
 // this struct is used for filling in software attributes for most current stable
@@ -159,21 +143,14 @@ func main() {
 	//t, _ := template.ParseFiles("main.html")
 	//t.Execute(os.Stdout, installedSoftwareMappings)
 
-	http.HandleFunc("/", mainHttp) // setting router rule
-	//http.HandleFunc("/login", login)
-	/*err = http.ListenAndServe(":9090", nil) // setting listening port
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
-	}*/
-
+	http.HandleFunc("/", mainHttpHandler) // setting router rule
 	listener, err := net.Listen("tcp", "localhost:3000")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// The browser can connect now because the listening socket is open.
-
-	err = open("http://localhost:3000/")
+	// open browser
+	err = openBrowser("http://localhost:3000/")
 	if err != nil {
 		log.Println(err)
 	}
@@ -182,224 +159,4 @@ func main() {
 	log.Fatal(http.Serve(listener, nil))
 
 	return
-}
-
-// tries to find matches between installed software components and
-// software release statii.
-// works at least for Firefox, Chrome, OpenVPN and Teamviewer (in current versions)
-// TODO: Does not do anything right now beneath logging
-func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftwareComponent, softwareReleaseStatii map[string]softwareReleaseStatus) []installedSoftwareMapping {
-	var returnMapping []installedSoftwareMapping
-
-	for regKey, installedComponent := range installedSoftware {
-		var upToDate = false
-		var found = false
-		var mappedStatValue softwareReleaseStatus
-		searchName := strings.Split(installedComponent.DisplayName, ".")[0]
-		if searchName != "" {
-			for _, statValue := range softwareReleaseStatii {
-				searchStatiiName := strings.Split(statValue.Product, ".")[0]
-
-				//fmt.Println("checking if", searchName, " contains ", searchStatKey)
-				if strings.Contains(searchName, searchStatiiName) || strings.Contains(searchStatiiName, searchName) {
-					//fmt.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)\n", installedComponent.displayName, installedComponent.displayVersion, statKey, statValue.Version)
-					Trace.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)", installedComponent.DisplayName, installedComponent.DisplayVersion, statValue.Product, statValue.Version)
-					found = true
-					mappedStatValue = statValue
-					if strings.HasPrefix(installedComponent.DisplayVersion, statValue.Version) {
-						upToDate = true
-					}
-				}
-			}
-		}
-		if upToDate {
-			returnMapping = append(returnMapping, installedSoftwareMapping{
-				Name:              installedComponent.DisplayName,
-				Status:            STATUS_UPTODATE,
-				InstalledSoftware: installedComponent,
-				MappedStatus:      mappedStatValue,
-			})
-			Info.Printf("%s seems up to date (%s)", installedComponent.DisplayName, installedComponent.DisplayVersion)
-
-			/*const STATUS_OUTDATED = 0
-			const STATUS_UPTODATE = 1
-			const STATUS_UNKNOWN = 2
-			}*/
-		} else if found {
-			returnMapping = append(returnMapping, installedSoftwareMapping{
-				Name:              installedComponent.DisplayName,
-				Status:            STATUS_OUTDATED,
-				InstalledSoftware: installedComponent,
-				MappedStatus:      mappedStatValue,
-			})
-			Info.Printf("%s seems outdated!! (%s)", installedComponent.DisplayName, installedComponent.DisplayVersion)
-		} else {
-			returnMapping = append(returnMapping, installedSoftwareMapping{
-				Name:              installedComponent.DisplayName,
-				Status:            STATUS_UNKNOWN,
-				InstalledSoftware: installedComponent,
-				MappedStatus:      mappedStatValue,
-			})
-			Info.Printf("No Information for %s (%s)", installedComponent.DisplayName, regKey)
-		}
-	}
-
-	return returnMapping
-}
-
-// gets Windows version numbers (Major, Minor and CurrentBuild)
-func getWindowsVersion() (CurrentMajorVersionNumber, CurrentMinorVersionNumber uint64, CurrentBuild string, err error) {
-	k, err := registry.OpenKey(registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", registry.ENUMERATE_SUB_KEYS|registry.QUERY_VALUE)
-	if err != nil {
-		return 0, 0, "", errors.New("Could not get version information from registry")
-	}
-	defer k.Close()
-
-	// BUG: This does not work with Windows 8.1! There is only CurrentBuild and CurrentVersion (which include Major and Minor, e.g. "6.3")
-
-	maj, _, err := k.GetIntegerValue("CurrentMajorVersionNumber")
-	if err != nil {
-		return 0, 0, "", errors.New("Could not get version information from registry")
-	}
-
-	min, _, err := k.GetIntegerValue("CurrentMinorVersionNumber")
-	if err != nil {
-		return maj, 0, "", errors.New("Could not get version information from registry")
-	}
-
-	cb, _, err := k.GetStringValue("CurrentBuild")
-	if err != nil {
-		return maj, min, "", errors.New("Could not get version information from registry")
-	}
-
-	return maj, min, cb, nil
-}
-
-// reads installed software from Microsoft Windows official registry keys
-func getInstalledSoftware() (map[string]installedSoftwareComponent, error) {
-	// Software from Uninstall registry keys
-	regKeysUninstall := []registryKeys{
-		{registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", registry.ENUMERATE_SUB_KEYS | registry.QUERY_VALUE | registry.WOW64_64KEY},
-		{registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", registry.ENUMERATE_SUB_KEYS | registry.QUERY_VALUE | registry.WOW64_32KEY},
-		{registry.CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", registry.ENUMERATE_SUB_KEYS | registry.QUERY_VALUE},
-	}
-
-	foundSoftware := make(map[string]installedSoftwareComponent)
-
-	for i := 0; i < len(regKeysUninstall); i++ {
-		Info.Printf("%d:%s", regKeysUninstall[i].rootKey, regKeysUninstall[i].path)
-		key, err := registry.OpenKey(regKeysUninstall[i].rootKey, regKeysUninstall[i].path, regKeysUninstall[i].flags)
-		if err != nil {
-			Info.Printf("Could not open registry key %s due to error %s", regKeysUninstall[i].path, err.Error())
-			return nil, errors.New(fmt.Sprintf("Could not open registry key %s due to error %s", regKeysUninstall[i].path, err.Error()))
-		}
-		defer key.Close()
-
-		//keyInfo, _ := key.Stat()
-		//Info.Printf("Number of subkeys: %i", int(keyInfo.SubKeyCount))
-		subKeys, err := key.ReadSubKeyNames(0)
-		if err != nil {
-			Info.Printf("Could not read sub keys of registry key %s due to error %s", regKeysUninstall[i].path, err.Error())
-			return nil, errors.New(fmt.Sprintf("Could not read sub keys of registry key %s due to error %s", regKeysUninstall[i].path, err.Error()))
-		}
-
-		for j := 0; j < len(subKeys); j++ {
-			subKey, err := registry.OpenKey(regKeysUninstall[i].rootKey, regKeysUninstall[i].path+"\\"+subKeys[j], regKeysUninstall[i].flags)
-			if err != nil {
-				Info.Printf("Could not open registry key %s due to error %s", subKeys[j], err.Error())
-				return nil, errors.New(fmt.Sprintf("Could not open registry key %s due to error %s", subKeys[j], err.Error()))
-			}
-			defer subKey.Close()
-
-			displayName, _, _ := subKey.GetStringValue("DisplayName")
-			if displayName == "" {
-				displayName = subKeys[j]
-			}
-			displayVersion, _, _ := subKey.GetStringValue("DisplayVersion")
-			publisher, _, _ := subKey.GetStringValue("Publisher")
-			Trace.Printf("getInstalledSoftware: %s: %s %s (%s)", subKeys[j], displayName, displayVersion, publisher)
-
-			newSoftwareFound := installedSoftwareComponent{displayName, displayVersion, publisher}
-			foundSoftware[subKeys[j]] = newSoftwareFound
-		}
-	}
-
-	return foundSoftware, nil
-}
-
-// fetches current versions of common software from
-// http://vergrabber.kingu.pl/vergrabber.json
-func getSoftwareVersionsFromVergrabber() map[string]softwareReleaseStatus {
-	softwareReleaseStatii := map[string]softwareReleaseStatus{}
-
-	// get JSON
-	// TODO: cache vergrabber.json
-	//url := "http://vergrabber.kingu.pl/vergrabber.json"
-	//resp, err := http.Get(url)
-	/// read from file system for now
-	jsonFromVergrabber, err := ioutil.ReadFile("vergrabber.json")
-	// handle the error if there is one
-	if err != nil {
-		panic(err)
-	}
-	// do this now so it won't be forgotten
-	//defer resp.Body.Close()
-
-	// reads json as a slice of bytes
-	//jsonFromVergrabber, err := ioutil.ReadAll(resp.Body)
-	//if err != nil {
-	//	panic(err)
-	//}
-
-	Info.Printf("%s\n", jsonFromVergrabber)
-
-	// parse JSON
-	var f map[string]map[string]map[string]softwareReleaseStatus
-	err = json.Unmarshal(jsonFromVergrabber, &f)
-
-	for _, valueSoftwareType := range f {
-		//fmt.Println("Typ:", softwareType)
-		for softwareName, softwareDetails := range valueSoftwareType {
-			//fmt.Println("Name:", softwareName)
-			for softwareVersion, softwareVersionDetails := range softwareDetails {
-				softwareVersionDetails.Name = softwareName
-				softwareVersionDetails.MajorRelease = softwareVersion
-
-				//fmt.Println("Version:", softwareVersion)
-				//fmt.Println("Details:", softwareVersionDetails)
-
-				softwareReleaseStatii[softwareName+" "+softwareVersion] = softwareVersionDetails
-			}
-		}
-	}
-
-	return softwareReleaseStatii
-}
-
-func mainHttp(w http.ResponseWriter, r *http.Request) {
-	//fmt.Println("method:", r.Method) //get request method
-	if r.Method == "GET" {
-		t, _ := template.ParseFiles("main.html")
-		t.Execute(w, installedSoftwareMappings)
-	} else {
-		fmt.Fprintf(w, "Not supported!")
-	}
-}
-
-// open opens the specified URL in the default browser of the user.
-func open(url string) error {
-	var cmd string
-	var args []string
-
-	switch runtime.GOOS {
-	case "windows":
-		cmd = "cmd"
-		args = []string{"/c", "start"}
-	case "darwin":
-		cmd = "open"
-	default: // "linux", "freebsd", "openbsd", "netbsd"
-		cmd = "xdg-open"
-	}
-	args = append(args, url)
-	return exec.Command(cmd, args...).Start()
 }
