@@ -31,43 +31,66 @@ type registryKeys struct {
 
 type WindowsVersion struct {
 	CurrentMajorVersionNumber, UBR, CurrentMinorVersionNumber uint64
-	CurrentBuild, ReleaseId                                   string
+	CurrentBuild, ReleaseId, ProductName                      string
 }
 
 // gets Windows version numbers (Major, Minor and CurrentBuild)
 func getWindowsVersion() (windowsVersion WindowsVersion, err error) {
 	k, err := registry.OpenKey(registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", registry.ENUMERATE_SUB_KEYS|registry.QUERY_VALUE)
 	if err != nil {
-		return WindowsVersion{0, 0, 0, "", ""}, errors.New("Could not get version information from registry")
+		return WindowsVersion{0, 0, 0, "", "", ""}, errors.New("Could not get version information from registry")
 	}
 	defer k.Close()
 
-	// BUG: This does not work with Windows 8.1! There is only CurrentBuild and CurrentVersion (which include Major and Minor, e.g. "6.3")
-
-	maj, _, err := k.GetIntegerValue("CurrentMajorVersionNumber")
+	pn, _, err := k.GetStringValue("ProductName")
 	if err != nil {
-		return WindowsVersion{0, 0, 0, "", ""}, errors.New("Could not get version information from registry - CurrentMajorVersionNumber")
-	}
-
-	relId, _, err := k.GetStringValue("ReleaseId")
-	if err != nil {
-		return WindowsVersion{maj, 0, 0, "", ""}, errors.New("Could not get version information from registry - ReleaseId")
-	}
-
-	ubr, _, err := k.GetIntegerValue("UBR")
-	if err != nil {
-		return WindowsVersion{maj, 0, 0, "", relId}, errors.New("Could not get version information from registry - UBR")
-	}
-
-	min, _, err := k.GetIntegerValue("CurrentMinorVersionNumber")
-	if err != nil {
-		return WindowsVersion{maj, ubr, 0, "", relId}, errors.New("Could not get version information from registry - CurrentMinorVersionNumber")
+		return WindowsVersion{0, 0, 0, "", "", ""}, errors.New("Could not get version information from registry - ProductName")
 	}
 
 	cb, _, err := k.GetStringValue("CurrentBuild")
 	if err != nil {
-		return WindowsVersion{maj, ubr, min, "", relId}, errors.New("Could not get version information from registry - CurrentBuild")
+		return WindowsVersion{0, 0, 0, "", "", pn}, errors.New("Could not get version information from registry - CurrentBuild")
 	}
 
-	return WindowsVersion{maj, ubr, min, cb, relId}, nil
+	maj, _, err := k.GetIntegerValue("CurrentMajorVersionNumber")
+	if err != nil {
+		return WindowsVersion{0, 0, 0, cb, "", pn}, errors.New("Could not get version information from registry - CurrentMajorVersionNumber")
+	}
+
+	relId, _, err := k.GetStringValue("ReleaseId")
+	if err != nil {
+		return WindowsVersion{maj, 0, 0, cb, "", pn}, errors.New("Could not get version information from registry - ReleaseId")
+	}
+
+	ubr, _, err := k.GetIntegerValue("UBR")
+	if err != nil {
+		return WindowsVersion{maj, 0, 0, cb, relId, pn}, errors.New("Could not get version information from registry - UBR")
+	}
+
+	min, _, err := k.GetIntegerValue("CurrentMinorVersionNumber")
+	if err != nil {
+		return WindowsVersion{maj, ubr, 0, cb, relId, pn}, errors.New("Could not get version information from registry - CurrentMinorVersionNumber")
+	}
+
+	return WindowsVersion{maj, ubr, min, cb, relId, pn}, nil
+}
+
+func checkWindowsVersionError(windowsVersion WindowsVersion, err error) {
+	if err == nil {
+		Info.Printf("Windows Product Name: %s", windowsVersion.ProductName)
+		Info.Printf("Windows Version: %d.%d.%s.%d",
+			windowsVersion.CurrentMajorVersionNumber,
+			windowsVersion.CurrentMinorVersionNumber,
+			windowsVersion.CurrentBuild, windowsVersion.UBR)
+		Info.Printf("Windows Release ID: %s", windowsVersion.ReleaseId)
+	} else {
+		if windowsVersion.ProductName != "" {
+			Info.Printf("Windows Product Name: %s", windowsVersion.ProductName)
+			if windowsVersion.CurrentBuild != "" {
+				Info.Printf("Windows Current Build: %s", windowsVersion.CurrentBuild)
+			}
+		} else {
+			Info.Printf("Error getting Windows Version: %s", err)
+		}
+	}
 }

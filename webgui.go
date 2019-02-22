@@ -19,7 +19,6 @@ package main
 import (
 	"bufio"
 	"html/template"
-	"log"
 	"os"
 	"os/exec"
 	"runtime"
@@ -44,21 +43,24 @@ func openBrowser(url string) error {
 }
 
 func outputResultsInBrowser(installedSoftwareMappings []installedSoftwareMapping) {
+	Trace.Println("Generating results html page...")
 	// Write HTML output
 	outputFile, err := os.Create("updatechecker_result.html")
 	if err != nil {
 		Info.Println(err)
-		log.Fatal(err)
+		os.Exit(1)
 	}
 	defer outputFile.Close()
 	outputWriter := bufio.NewWriter(outputFile)
 
+	Trace.Println("Executing Template...")
 	t, _ := template.ParseFiles("main.html")
 	t.Execute(outputWriter, installedSoftwareMappings)
 	outputWriter.Flush()
 	outputFile.Close()
 
 	// open browser
+	Trace.Println("Opening Browser...")
 	err = openBrowser("updatechecker_result.html")
 	if err != nil {
 		Info.Println(err)

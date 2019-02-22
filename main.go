@@ -91,15 +91,7 @@ func main() {
 
 	// fetch Windows version
 	windowsVersion, err := getWindowsVersion()
-	if err == nil {
-		Info.Printf("Windows Version: %d.%d.%s.%d",
-			windowsVersion.CurrentMajorVersionNumber,
-			windowsVersion.CurrentMinorVersionNumber,
-			windowsVersion.CurrentBuild, windowsVersion.UBR)
-		Info.Printf("Windows Release ID: %s", windowsVersion.ReleaseId)
-	} else {
-		Info.Printf("Error getting Windows Version: %s", err)
-	}
+	checkWindowsVersionError(windowsVersion, err)
 
 	// fetch installed software
 	foundSoftware, err := getInstalledSoftware()
@@ -131,10 +123,7 @@ func main() {
 	})
 
 	// verify OS patch level against Vergrabber
-	windowsMapping, err := verifyOSPatchlevel(windowsVersion, softwareReleaseStatii)
-	if err != nil {
-		Info.Printf(err.Error())
-	}
+	windowsMapping := verifyOSPatchlevel(windowsVersion, softwareReleaseStatii)
 	Trace.Printf("WindowsMapping: %#v\n", windowsMapping)
 
 	// create Combined Mapping for Windows itself and installed software

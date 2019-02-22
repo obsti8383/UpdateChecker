@@ -47,6 +47,8 @@ func getSoftwareVersionsFromVergrabber() map[string]softwareReleaseStatus {
 
 	//Trace.Printf("%s\n", jsonFromVergrabber)
 
+	// TODO: check if vergrabber.json is up to date
+
 	// parse JSON
 	var f map[string]map[string]map[string]softwareReleaseStatus
 	err = json.Unmarshal(jsonFromVergrabber, &f)

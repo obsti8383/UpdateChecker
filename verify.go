@@ -17,7 +17,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -84,7 +83,7 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 }
 
 // verify OS patchlevel
-func verifyOSPatchlevel(windowsVersion WindowsVersion, softwareReleaseStatii map[string]softwareReleaseStatus) (installedSoftwareMapping, error) {
+func verifyOSPatchlevel(windowsVersion WindowsVersion, softwareReleaseStatii map[string]softwareReleaseStatus) installedSoftwareMapping {
 	var status int
 
 	if windowsVersion.CurrentMajorVersionNumber == 10 {
@@ -114,7 +113,17 @@ func verifyOSPatchlevel(windowsVersion WindowsVersion, softwareReleaseStatii map
 				Publisher:      "Microsoft",
 			},
 			MappedStatus: uptodateRelease,
-		}, nil
+		}
+	} else {
+		return installedSoftwareMapping{
+			Name:   windowsVersion.ProductName,
+			Status: STATUS_UNKNOWN,
+			InstalledSoftware: installedSoftwareComponent{
+				DisplayName:    windowsVersion.ProductName,
+				DisplayVersion: windowsVersion.CurrentBuild,
+				Publisher:      "Microsoft",
+			},
+			MappedStatus: softwareReleaseStatus{},
+		}
 	}
-	return installedSoftwareMapping{}, errors.New("Could not find corresponding windows version")
 }
