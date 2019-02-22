@@ -53,8 +53,6 @@ func outputResultsInBrowser(installedSoftwareMappings []installedSoftwareMapping
 	defer outputFile.Close()
 	outputWriter := bufio.NewWriter(outputFile)
 
-	// TODO: put Bootstrap CSS and Javascripts in local directory instead
-	//       of fetching them from the cloud
 	t, _ := template.ParseFiles("main.html")
 	t.Execute(outputWriter, installedSoftwareMappings)
 	outputWriter.Flush()
