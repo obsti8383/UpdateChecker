@@ -24,6 +24,8 @@ import (
 	"runtime"
 )
 
+const RESULT_FILE_NAME = "updatechecker_result.html"
+
 // open opens the specified URL in the default browser of the user.
 func openBrowser(url string) error {
 	var cmd string
@@ -45,7 +47,7 @@ func openBrowser(url string) error {
 func outputResultsInBrowser(installedSoftwareMappings []installedSoftwareMapping) {
 	Trace.Println("Generating results html page...")
 	// Write HTML output
-	outputFile, err := os.Create("updatechecker_result.html")
+	outputFile, err := os.Create(RESULT_FILE_NAME)
 	if err != nil {
 		Info.Println(err)
 		os.Exit(1)
@@ -61,8 +63,16 @@ func outputResultsInBrowser(installedSoftwareMappings []installedSoftwareMapping
 
 	// open browser
 	Trace.Println("Opening Browser...")
-	err = openBrowser("updatechecker_result.html")
+	err = openBrowser(RESULT_FILE_NAME)
 	if err != nil {
 		Info.Println(err)
+	}
+}
+
+func deleteResultHTML() {
+	err := os.Remove(RESULT_FILE_NAME)
+	if err != nil {
+		Info.Println(err)
+		os.Exit(1)
 	}
 }

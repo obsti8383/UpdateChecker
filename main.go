@@ -91,6 +91,9 @@ func main() {
 
 	var installedSoftwareMappings []installedSoftwareMapping
 
+	// cleanup from last run
+	deleteResultHTML()
+
 	// fetch Windows version
 	windowsVersion, err := getWindowsVersion()
 	checkWindowsVersionError(windowsVersion, err)
@@ -134,5 +137,4 @@ func main() {
 	installedSoftwareMappings = append(newMappings, installedSoftwareMappings...)
 
 	outputResultsInBrowser(installedSoftwareMappings)
-	return
 }
