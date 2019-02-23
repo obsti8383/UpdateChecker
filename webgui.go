@@ -70,9 +70,14 @@ func outputResultsInBrowser(installedSoftwareMappings []installedSoftwareMapping
 }
 
 func deleteResultHTML() {
-	err := os.Remove(RESULT_FILE_NAME)
-	if err != nil {
-		Info.Println(err)
-		os.Exit(1)
+	// if file exists...
+	if _, err := os.Stat(RESULT_FILE_NAME); err == nil {
+		// delete it
+		err := os.Remove(RESULT_FILE_NAME)
+		if err != nil {
+			Info.Println(err)
+			os.Exit(1)
+		}
+
 	}
 }
