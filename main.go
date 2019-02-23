@@ -110,6 +110,8 @@ func main() {
 
 	// fetch software current release information from Vergrabber
 	softwareReleaseStatii := getSoftwareVersionsFromVergrabber()
+	// TODO : Fehlerbehandlung, falls Vergrabber nicht abgerufen werden kann
+
 	Trace.Printf(fmt.Sprintf("Software Releases from Vergrabber: %#v\n", softwareReleaseStatii))
 	//fmt.Println("Software Releases from Vergrabber:\n", softwareReleaseStatii)
 
