@@ -17,7 +17,6 @@
 package main
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -32,6 +31,7 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 		var upToDate = false
 		var found = false
 		var mappedStatValue softwareReleaseStatus
+
 		searchName := strings.Split(installedComponent.DisplayName, ".")[0]
 		if searchName != "" {
 			for statName, statValue := range softwareReleaseStatii {
@@ -41,7 +41,7 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 				}
 				//fmt.Printf("statName: %s\n", statName)
 				if strings.Contains(searchName, statName) || strings.Contains(statName, searchName) {
-					fmt.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)\n", installedComponent.DisplayName, installedComponent.DisplayVersion, statName, statValue.Version)
+					//fmt.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)\n", installedComponent.DisplayName, installedComponent.DisplayVersion, statName, statValue.Version)
 					Trace.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)", installedComponent.DisplayName, installedComponent.DisplayVersion, statName, statValue.Version)
 					found = true
 					mappedStatValue = statValue
@@ -52,6 +52,7 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 				}
 			}
 		}
+
 		if upToDate {
 			returnMapping = append(returnMapping, installedSoftwareMapping{
 				Name:              installedComponent.DisplayName,
@@ -99,8 +100,10 @@ func verifyOSPatchlevel(windowsVersion WindowsVersion, softwareReleaseStatii map
 		Trace.Println("uptodateRelease: ", uptodateRelease)
 
 		if uptodateRelease.Version == windowsVersionString {
+			Info.Printf("Windows seems up to date")
 			status = STATUS_UPTODATE
 		} else {
+			Info.Printf("Windows seems outdated!!")
 			status = STATUS_OUTDATED
 		}
 
@@ -115,6 +118,7 @@ func verifyOSPatchlevel(windowsVersion WindowsVersion, softwareReleaseStatii map
 			MappedStatus: uptodateRelease,
 		}
 	} else {
+		Info.Printf("Windows Version <= Windows 8: Not supported by Update Checker")
 		return installedSoftwareMapping{
 			Name:   windowsVersion.ProductName,
 			Status: STATUS_UNKNOWN,

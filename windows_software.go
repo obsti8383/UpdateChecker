@@ -35,7 +35,7 @@ func getInstalledSoftware() (map[string]installedSoftwareComponent, error) {
 	foundSoftware := make(map[string]installedSoftwareComponent)
 
 	for i := 0; i < len(regKeysUninstall); i++ {
-		Trace.Printf("%d:%s", regKeysUninstall[i].rootKey, regKeysUninstall[i].path)
+		//Trace.Printf("%d:%s", regKeysUninstall[i].rootKey, regKeysUninstall[i].path)
 		key, err := registry.OpenKey(regKeysUninstall[i].rootKey, regKeysUninstall[i].path, regKeysUninstall[i].flags)
 		if err != nil {
 			Info.Printf("Could not open registry key %s due to error %s", regKeysUninstall[i].path, err.Error())
@@ -65,7 +65,7 @@ func getInstalledSoftware() (map[string]installedSoftwareComponent, error) {
 			}
 			displayVersion, _, _ := subKey.GetStringValue("DisplayVersion")
 			publisher, _, _ := subKey.GetStringValue("Publisher")
-			Trace.Printf("getInstalledSoftware: %s: %s %s (%s)", subKeys[j], displayName, displayVersion, publisher)
+			//Trace.Printf("getInstalledSoftware: %s: %s %s (%s)", subKeys[j], displayName, displayVersion, publisher)
 
 			newSoftwareFound := installedSoftwareComponent{displayName, displayVersion, publisher}
 			foundSoftware[subKeys[j]] = newSoftwareFound

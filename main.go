@@ -19,7 +19,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -87,7 +86,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	initLogging(logfile, logfile)
+	initLogging(logfile, os.Stdout)
 
 	var installedSoftwareMappings []installedSoftwareMapping
 
@@ -110,10 +109,6 @@ func main() {
 
 	// fetch software current release information from Vergrabber
 	softwareReleaseStatii := getSoftwareVersionsFromVergrabber()
-	// TODO : Fehlerbehandlung, falls Vergrabber nicht abgerufen werden kann
-
-	Trace.Printf(fmt.Sprintf("Software Releases from Vergrabber: %#v\n", softwareReleaseStatii))
-	//fmt.Println("Software Releases from Vergrabber:\n", softwareReleaseStatii)
 
 	// get mappings between installed software and currentReleases
 	installedSoftwareMappings = verifyInstalledSoftwareVersions(foundSoftware, softwareReleaseStatii)
@@ -131,12 +126,12 @@ func main() {
 
 	// verify OS patch level against Vergrabber
 	windowsMapping := verifyOSPatchlevel(windowsVersion, softwareReleaseStatii)
-	Trace.Printf("WindowsMapping: %#v\n", windowsMapping)
 
 	// create Combined Mapping for Windows itself and installed software
 	newMappings := make([]installedSoftwareMapping, 0)
 	newMappings = append(newMappings, windowsMapping)
 	installedSoftwareMappings = append(newMappings, installedSoftwareMappings...)
 
+	// write results to HTML file and open in browser
 	outputResultsInBrowser(installedSoftwareMappings)
 }
