@@ -43,12 +43,30 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 				if strings.Contains(searchName, statName) || strings.Contains(statName, searchName) {
 					//fmt.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)\n", installedComponent.DisplayName, installedComponent.DisplayVersion, statName, statValue.Version)
 					Trace.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)", installedComponent.DisplayName, installedComponent.DisplayVersion, statName, statValue.Version)
-					found = true
-					mappedStatValue = statValue
-					if installedComponent.DisplayVersion == statValue.Version {
-						upToDate = true
-						break
+					// special case for Firefox: ESR and standard releases are
+					// both contained in vergrabber.json. Therefore if we find two
+					// matches, we have to decide which one to match
+					if found {
+						// we found the item before, with an outdated/not equal software version
+						if installedComponent.DisplayVersion == statValue.Version {
+							mappedStatValue = statValue
+							upToDate = true
+							break
+						} else {
+							if mappedStatValue.Version < statValue.Version {
+								// always map the highest version
+								mappedStatValue = statValue
+							}
+						}
+					} else {
+						found = true
+						mappedStatValue = statValue
+						if installedComponent.DisplayVersion == statValue.Version {
+							upToDate = true
+							break
+						}
 					}
+
 				}
 			}
 		}
