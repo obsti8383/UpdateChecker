@@ -59,6 +59,7 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 							}
 						}
 					} else {
+						// standard case: we (first) found an matching item
 						found = true
 						mappedStatValue = statValue
 						if installedComponent.DisplayVersion == statValue.Version {
@@ -71,6 +72,7 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 			}
 		}
 
+		// build mapping object
 		if upToDate {
 			returnMapping = append(returnMapping, installedSoftwareMapping{
 				Name:              installedComponent.DisplayName,
