@@ -17,6 +17,7 @@
 package main
 
 import (
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -32,15 +33,26 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 		var found = false
 		var mappedStatValue softwareReleaseStatus
 
-		searchName := strings.Split(installedComponent.DisplayName, ".")[0]
-		if searchName != "" {
+		// regexp for just getting [a-zA-Z ] from beginning of string
+		reg := regexp.MustCompile("^[-0-9a-zA-ZäöüÄÖÜß\t\n\v\f\r{}_()® ]+")
+		reg2 := regexp.MustCompile(" [0-9]+\\.[0-9]+")
+
+		searchNameWithMajorVersion := strings.Split(installedComponent.DisplayName, ".")[0]
+		searchNameWithoutVersion := reg.FindString(installedComponent.DisplayName)
+		index := reg2.FindStringIndex(installedComponent.DisplayName)
+		if len(index) > 0 {
+			searchNameWithoutVersion = installedComponent.DisplayName[:index[0]]
+		}
+		Trace.Printf("searchNameWithMajorVersion: " + searchNameWithMajorVersion)
+		Trace.Printf("searchNameWithoutVersion:   " + searchNameWithoutVersion)
+		if searchNameWithMajorVersion != "" {
 			for statName, statValue := range softwareReleaseStatii {
 				statNameArray := strings.Split(statName, " ")
 				if len(statNameArray) > 2 {
 					statName = statNameArray[0] + " " + statNameArray[1]
 				}
 				//fmt.Printf("statName: %s\n", statName)
-				if strings.Contains(searchName, statName) || strings.Contains(statName, searchName) {
+				if strings.Contains(searchNameWithMajorVersion, statName) || strings.Contains(statName, searchNameWithMajorVersion) {
 					//fmt.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)\n", installedComponent.DisplayName, installedComponent.DisplayVersion, statName, statValue.Version)
 					Trace.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)", installedComponent.DisplayName, installedComponent.DisplayVersion, statName, statValue.Version)
 					// special case for Firefox: ESR and standard releases are
@@ -68,6 +80,29 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 						}
 					}
 
+				} else if searchNameWithoutVersion != "" && strings.Contains(searchNameWithoutVersion, statName) || strings.Contains(statName, searchNameWithoutVersion) {
+					Trace.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)", installedComponent.DisplayName, installedComponent.DisplayVersion, statName, statValue.Version)
+					if found {
+						// we found the item before, with an outdated/not equal software version
+						if installedComponent.DisplayVersion == statValue.Version {
+							mappedStatValue = statValue
+							upToDate = true
+							break
+						} else {
+							if mappedStatValue.Version < statValue.Version {
+								// always map the highest version
+								mappedStatValue = statValue
+							}
+						}
+					} else {
+						// standard case: we (first) found an matching item
+						found = true
+						mappedStatValue = statValue
+						if installedComponent.DisplayVersion == statValue.Version {
+							upToDate = true
+							break
+						}
+					}
 				}
 			}
 		}
