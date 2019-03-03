@@ -4,7 +4,7 @@
         "version": "3.1.5",
         "author": "Tomasz Krol",
         "notice": "If there is something broken or could be improved - please email me at vergrabber@kingu.pl",
-        "updated": "2019-03-02"
+        "updated": "2019-03-03"
     },
     "server": {
         "Apache2": {
@@ -246,18 +246,6 @@
                 "lts": null
             }
         },
-        "Adobe Flash Player": {
-            "32": {
-                "product": "Adobe Flash Player",
-                "edition": "32",
-                "version": "32.0.0.142",
-                "stable": true,
-                "latest": true,
-                "released": "2019-02-12",
-                "ends": "9999-12-31",
-                "lts": null
-            }
-        },
         "Java": {
             "8.0": {
                 "product": "Java",
@@ -391,6 +379,50 @@
                 "ends": "9999-12-31",
                 "lts": null
             }
+        },
+        "Adobe Flash Player": {
+            "32": {
+                "product": "Adobe Flash Player",
+                "edition": "32",
+                "version": "32.0.0.142",
+                "stable": true,
+                "latest": true,
+                "released": "2019-02-12",
+                "ends": "9999-12-31",
+                "lts": null
+            }
+        },
+        "Adobe Acrobat Reader": {
+            "DC 19": {
+                "product": "Adobe Acrobat Reader",
+                "edition": "DC 19",
+                "version": "19.010.20098",
+                "stable": true,
+                "latest": true,
+                "released": "2019-02-21",
+                "ends": "9999-12-31",
+                "lts": null
+            },
+            "DC 17": {
+                "product": "Adobe Acrobat Reader",
+                "edition": "DC 17",
+                "version": "17.011.30127",
+                "stable": true,
+                "latest": false,
+                "released": "2019-02-21",
+                "ends": "9999-12-31",
+                "lts": null
+            },
+            "DC 15": {
+                "product": "Adobe Acrobat Reader",
+                "edition": "DC 15",
+                "version": "15.006.30482",
+                "stable": true,
+                "latest": false,
+                "released": "2019-02-21",
+                "ends": "9999-12-31",
+                "lts": null
+            }
         }
     },
     "latest": {
@@ -477,16 +509,6 @@
                 "ends": "9999-12-31",
                 "lts": null
             },
-            "Adobe Flash Player": {
-                "product": "Adobe Flash Player",
-                "edition": "32",
-                "version": "32.0.0.142",
-                "stable": true,
-                "latest": true,
-                "released": "2019-02-12",
-                "ends": "9999-12-31",
-                "lts": null
-            },
             "Java": {
                 "product": "Java",
                 "edition": "8.0",
@@ -551,6 +573,26 @@
                 "product": "7-Zip",
                 "edition": "19.00",
                 "version": "19.00",
+                "stable": true,
+                "latest": true,
+                "released": "2019-02-21",
+                "ends": "9999-12-31",
+                "lts": null
+            },
+            "Adobe Flash Player": {
+                "product": "Adobe Flash Player",
+                "edition": "32",
+                "version": "32.0.0.142",
+                "stable": true,
+                "latest": true,
+                "released": "2019-02-12",
+                "ends": "9999-12-31",
+                "lts": null
+            },
+            "Adobe Acrobat Reader": {
+                "product": "Adobe Acrobat Reader",
+                "edition": "DC 19",
+                "version": "19.010.20098",
                 "stable": true,
                 "latest": true,
                 "released": "2019-02-21",
