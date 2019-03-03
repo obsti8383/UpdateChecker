@@ -24,7 +24,7 @@ import (
 
 // tries to find matches between installed software components and
 // software release statii.
-// works at least for Firefox, Chrome, OpenVPN, Adobe Flash and Teamviewer (in current versions)
+// works at least for Firefox, Chrome, OpenVPN, Adobe Flash, Acrobat Reader, 7-Zip and Teamviewer (in current versions)
 func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftwareComponent, softwareReleaseStatii map[string]softwareReleaseStatus) []installedSoftwareMapping {
 	var returnMapping []installedSoftwareMapping
 

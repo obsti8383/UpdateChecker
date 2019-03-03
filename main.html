@@ -23,7 +23,7 @@
 				     {{else if eq $v.Status 1}}<div class="alert alert-success" role="alert">Up-to-date</div>
 					 {{else}}<div class="alert alert-light" role="alert">Unkown status</div>{{end}}</td>
 				<td>{{if $v.InstalledSoftware.DisplayVersion}}{{$v.InstalledSoftware.DisplayVersion}}{{else}}no version found{{end}}</td>
-				<td>{{if $v.MappedStatus.Version}}{{$v.MappedStatus.Version}}{{else}}not available{{end}}</td>
+				<td>{{if $v.MappedStatus.Version}}{{$v.MappedStatus.Version}}<br>({{$v.MappedStatus.Released}}){{else}}not available{{end}}</td>
   			</tr>
 			{{end}}
 			</tbody>
