@@ -75,6 +75,7 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 
 		// Firefox (special due to long term support releases)
 		if strings.HasPrefix(installedComponent.DisplayName, "Mozilla Firefox") {
+
 			version := installedComponent.DisplayVersion
 			versionSplit := strings.Split(version, ".")
 			minorVersion := versionSplit[0] + "." + versionSplit[1]
@@ -84,6 +85,23 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 				found = true
 				if compareVersionStrings(currentRelease.Version, version) == 0 {
 					upToDate = true
+				}
+			} else {
+				// go through all version and select newest
+				for statName, statValue := range softwareReleaseStatii {
+					if strings.HasPrefix(statName, "Mozilla Firefox") {
+						if mappedStatValue.Version != "" {
+							if compareVersionStrings(mappedStatValue.Version, statValue.Version) > 0 {
+								// ignore, we already found a newer release
+							} else {
+								found = true
+								mappedStatValue = statValue
+							}
+						} else {
+							found = true
+							mappedStatValue = statValue
+						}
+					}
 				}
 			}
 		}
