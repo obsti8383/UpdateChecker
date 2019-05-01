@@ -17,14 +17,54 @@
 package main
 
 import (
-	"regexp"
 	"strconv"
 	"strings"
 )
 
-// tries to find matches between installed software components and
-// software release statii.
-// works at least for Firefox, Chrome, OpenVPN, Adobe Flash, Acrobat Reader, 7-Zip and Teamviewer (in current versions)
+func compareVersionStrings(version1, version2 string) int {
+	// replace "-" with "." to remediate version strings like 2.4.6-602
+	version1 = strings.Replace(version1, "-", ".", -1)
+	version2 = strings.Replace(version2, "-", ".", -1)
+
+	v1Split := strings.Split(version1, ".")
+	v2Split := strings.Split(version2, ".")
+	lenV1 := len(v1Split)
+	lenV2 := len(v2Split)
+
+	for i, v1 := range v1Split {
+		if i >= lenV2 {
+			return -1
+		}
+
+		v1Int, err1 := strconv.ParseUint(v1, 10, 64)
+		v2Int, err2 := strconv.ParseUint(v2Split[i], 10, 64)
+		if err1 != nil || err2 != nil {
+			// compare as string
+			return strings.Compare(v1, v2Split[i])
+		}
+
+		if v1Int > v2Int {
+			return 1
+		} else if v2Int == v1Int {
+			if i == lenV1-1 {
+				if lenV1 == lenV2 {
+					return 0
+				} else {
+					return -1
+				}
+			} else {
+				// go on
+			}
+		} else {
+			return -1
+		}
+	}
+
+	// TODO: we should return an error here instead
+	return -1
+}
+
+// verifies installed software versions
 func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftwareComponent, softwareReleaseStatii map[string]softwareReleaseStatus) []installedSoftwareMapping {
 	var returnMapping []installedSoftwareMapping
 
@@ -33,74 +73,54 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 		var found = false
 		var mappedStatValue softwareReleaseStatus
 
-		// regexp for just getting [a-zA-Z ] from beginning of string
-		reg := regexp.MustCompile("^[-0-9a-zA-ZäöüÄÖÜß\t\n\v\f\r{}_()® ]+")
-		reg2 := regexp.MustCompile(" [0-9]+\\.[0-9]+")
-
-		searchNameWithMajorVersion := strings.Split(installedComponent.DisplayName, ".")[0]
-		searchNameWithoutVersion := reg.FindString(installedComponent.DisplayName)
-		index := reg2.FindStringIndex(installedComponent.DisplayName)
-		if len(index) > 0 {
-			searchNameWithoutVersion = installedComponent.DisplayName[:index[0]]
-		}
-		Trace.Printf("searchNameWithMajorVersion: " + searchNameWithMajorVersion)
-		Trace.Printf("searchNameWithoutVersion:   " + searchNameWithoutVersion)
-		if searchNameWithMajorVersion != "" {
-			for statName, statValue := range softwareReleaseStatii {
-				statNameArray := strings.Split(statName, " ")
-				if len(statNameArray) > 2 {
-					statName = statNameArray[0] + " " + statNameArray[1]
+		// Firefox (special due to long term support releases)
+		if strings.HasPrefix(installedComponent.DisplayName, "Mozilla Firefox") {
+			version := installedComponent.DisplayVersion
+			versionSplit := strings.Split(version, ".")
+			minorVersion := versionSplit[0] + "." + versionSplit[1]
+			currentRelease, inStatii := softwareReleaseStatii["Mozilla Firefox "+minorVersion]
+			if inStatii {
+				mappedStatValue = currentRelease
+				found = true
+				if compareVersionStrings(currentRelease.Version, version) == 0 {
+					upToDate = true
 				}
-				//fmt.Printf("statName: %s\n", statName)
-				if strings.Contains(searchNameWithMajorVersion, statName) || strings.Contains(statName, searchNameWithMajorVersion) {
-					//fmt.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)\n", installedComponent.DisplayName, installedComponent.DisplayVersion, statName, statValue.Version)
-					Trace.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)", installedComponent.DisplayName, installedComponent.DisplayVersion, statName, statValue.Version)
-					// special case for Firefox: ESR and standard releases are
-					// both contained in vergrabber.json. Therefore if we find two
-					// matches, we have to decide which one to match
-					if found {
-						// we found the item before, with an outdated/not equal software version
-						if installedComponent.DisplayVersion == statValue.Version {
-							mappedStatValue = statValue
-							upToDate = true
-							break
-						} else {
-							if mappedStatValue.Version < statValue.Version {
-								// always map the highest version
-								mappedStatValue = statValue
-							}
-						}
-					} else {
-						// standard case: we (first) found an matching item
-						found = true
-						mappedStatValue = statValue
-						if installedComponent.DisplayVersion == statValue.Version {
-							upToDate = true
-							break
-						}
-					}
+			}
+		}
 
-				} else if searchNameWithoutVersion != "" && strings.Contains(searchNameWithoutVersion, statName) || strings.Contains(statName, searchNameWithoutVersion) {
-					Trace.Printf("Possible match found: Installed software \"%s\" (%s) might match \"%s\" (%s)", installedComponent.DisplayName, installedComponent.DisplayVersion, statName, statValue.Version)
-					if found {
-						// we found the item before, with an outdated/not equal software version
-						if installedComponent.DisplayVersion == statValue.Version {
-							mappedStatValue = statValue
-							upToDate = true
-							break
-						} else {
-							if mappedStatValue.Version < statValue.Version {
-								// always map the highest version
-								mappedStatValue = statValue
-							}
-						}
-					} else {
-						// standard case: we (first) found an matching item
-						found = true
+		// other software
+		softwares := []string{"Google Chrome", "OpenVPN", "Adobe Flash",
+			"Adobe Acrobat Reader", "7-Zip", "Teamviewer",
+			"Mozilla Thunderbird", "VeraCrypt"}
+		for _, name := range softwares {
+			if strings.HasPrefix(installedComponent.DisplayName, name) {
+				version := installedComponent.DisplayVersion
+				versionSplit := strings.Split(version, ".")
+				minorVersion := versionSplit[0] + "." + versionSplit[1]
+				for statName, statValue := range softwareReleaseStatii {
+					if strings.HasPrefix(statName, name+" "+minorVersion) {
 						mappedStatValue = statValue
-						if installedComponent.DisplayVersion == statValue.Version {
+						found = true
+						if compareVersionStrings(statValue.Version, version) == 0 {
 							upToDate = true
-							break
+						}
+					} else if strings.HasPrefix(statName, name) {
+						if mappedStatValue.Version != "" {
+							if compareVersionStrings(mappedStatValue.Version, statValue.Version) > 0 {
+								// ignore, we already found a newer release
+							} else {
+								found = true
+								mappedStatValue = statValue
+								if compareVersionStrings(statValue.Version, version) == 0 {
+									upToDate = true
+								}
+							}
+						} else {
+							found = true
+							mappedStatValue = statValue
+							if compareVersionStrings(statValue.Version, version) == 0 {
+								upToDate = true
+							}
 						}
 					}
 				}
