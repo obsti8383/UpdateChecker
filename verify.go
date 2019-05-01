@@ -91,7 +91,7 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 		// other software
 		softwares := []string{"Google Chrome", "OpenVPN", "Adobe Flash",
 			"Adobe Acrobat Reader", "7-Zip", "Teamviewer",
-			"Mozilla Thunderbird", "VeraCrypt"}
+			"Mozilla Thunderbird", "VeraCrypt", "Java"}
 		for _, name := range softwares {
 			if strings.HasPrefix(installedComponent.DisplayName, name) {
 				version := installedComponent.DisplayVersion
