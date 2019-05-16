@@ -69,9 +69,14 @@ type installedSoftwareComponent struct {
 	Publisher      string
 }
 
-const STATUS_OUTDATED = 0
-const STATUS_UPTODATE = 1
-const STATUS_UNKNOWN = 2
+//StatusOutdated means that the software is not up-to-date
+const StatusOutdated = 0
+
+//StatusUpToDate means that the software is up-to-date
+const StatusUpToDate = 1
+
+//StatusUnknown means that the software status or the software itself is unknown
+const StatusUnknown = 2
 
 type installedSoftwareMapping struct {
 	Name              string

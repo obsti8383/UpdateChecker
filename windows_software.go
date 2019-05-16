@@ -17,7 +17,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 
 	"golang.org/x/sys/windows/registry"
@@ -39,7 +38,7 @@ func getInstalledSoftware() (map[string]installedSoftwareComponent, error) {
 		key, err := registry.OpenKey(regKeysUninstall[i].rootKey, regKeysUninstall[i].path, regKeysUninstall[i].flags)
 		if err != nil {
 			Info.Printf("Could not open registry key %s due to error %s", regKeysUninstall[i].path, err.Error())
-			return nil, errors.New(fmt.Sprintf("Could not open registry key %s due to error %s", regKeysUninstall[i].path, err.Error()))
+			return nil, fmt.Errorf("Could not open registry key %s due to error %s", regKeysUninstall[i].path, err.Error())
 		}
 		defer key.Close()
 
@@ -48,14 +47,14 @@ func getInstalledSoftware() (map[string]installedSoftwareComponent, error) {
 		subKeys, err := key.ReadSubKeyNames(0)
 		if err != nil {
 			Info.Printf("Could not read sub keys of registry key %s due to error %s", regKeysUninstall[i].path, err.Error())
-			return nil, errors.New(fmt.Sprintf("Could not read sub keys of registry key %s due to error %s", regKeysUninstall[i].path, err.Error()))
+			return nil, fmt.Errorf("Could not read sub keys of registry key %s due to error %s", regKeysUninstall[i].path, err.Error())
 		}
 
 		for j := 0; j < len(subKeys); j++ {
 			subKey, err := registry.OpenKey(regKeysUninstall[i].rootKey, regKeysUninstall[i].path+"\\"+subKeys[j], regKeysUninstall[i].flags)
 			if err != nil {
 				Info.Printf("Could not open registry key %s due to error %s", subKeys[j], err.Error())
-				return nil, errors.New(fmt.Sprintf("Could not open registry key %s due to error %s", subKeys[j], err.Error()))
+				return nil, fmt.Errorf("Could not open registry key %s due to error %s", subKeys[j], err.Error())
 			}
 			defer subKey.Close()
 

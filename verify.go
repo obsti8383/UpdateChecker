@@ -49,12 +49,10 @@ func compareVersionStrings(version1, version2 string) int {
 			if i == lenV1-1 {
 				if lenV1 == lenV2 {
 					return 0
-				} else {
-					return -1
 				}
-			} else {
-				// go on
+				return -1
 			}
+			// else: go on
 		} else {
 			return -1
 		}
@@ -160,13 +158,6 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 								mappedStatValue = statValue
 							}
 						}
-						/*} else {
-							found = true
-							mappedStatValue = statValue
-							if compareVersionStrings(statValue.Version, version) == 0 {
-								upToDate = true
-							}
-						}*/
 					}
 				}
 			}
@@ -176,7 +167,7 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 		if upToDate {
 			returnMapping = append(returnMapping, installedSoftwareMapping{
 				Name:              installedComponent.DisplayName,
-				Status:            STATUS_UPTODATE,
+				Status:            StatusUpToDate,
 				InstalledSoftware: installedComponent,
 				MappedStatus:      mappedStatValue,
 			})
@@ -184,7 +175,7 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 		} else if found {
 			returnMapping = append(returnMapping, installedSoftwareMapping{
 				Name:              installedComponent.DisplayName,
-				Status:            STATUS_OUTDATED,
+				Status:            StatusOutdated,
 				InstalledSoftware: installedComponent,
 				MappedStatus:      mappedStatValue,
 			})
@@ -192,7 +183,7 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 		} else {
 			returnMapping = append(returnMapping, installedSoftwareMapping{
 				Name:              installedComponent.DisplayName,
-				Status:            STATUS_UNKNOWN,
+				Status:            StatusUnknown,
 				InstalledSoftware: installedComponent,
 				MappedStatus:      mappedStatValue,
 			})
@@ -209,7 +200,7 @@ func verifyOSPatchlevel(windowsVersion WindowsVersion, softwareReleaseStatii map
 
 	if windowsVersion.CurrentMajorVersionNumber == 10 {
 		// Windows 10
-		windowsReleaseName := "Microsoft Windows 10 " + string(windowsVersion.ReleaseId)
+		windowsReleaseName := "Microsoft Windows 10 " + string(windowsVersion.ReleaseID)
 		Trace.Println("windowsReleaseName: ", windowsReleaseName)
 		Trace.Println("windowsVersion.UBR: ", windowsVersion.UBR)
 		Trace.Println("string(windowsVersion.UBR): ", strconv.FormatUint(windowsVersion.UBR, 10))
@@ -221,10 +212,10 @@ func verifyOSPatchlevel(windowsVersion WindowsVersion, softwareReleaseStatii map
 
 		if uptodateRelease.Version == windowsVersionString {
 			Info.Printf("Windows seems up to date")
-			status = STATUS_UPTODATE
+			status = StatusUpToDate
 		} else {
 			Info.Printf("Windows seems outdated!!")
-			status = STATUS_OUTDATED
+			status = StatusOutdated
 		}
 
 		return installedSoftwareMapping{
@@ -237,17 +228,18 @@ func verifyOSPatchlevel(windowsVersion WindowsVersion, softwareReleaseStatii map
 			},
 			MappedStatus: uptodateRelease,
 		}
-	} else {
-		Info.Printf("Windows Version <= Windows 8: Not supported by Update Checker")
-		return installedSoftwareMapping{
-			Name:   windowsVersion.ProductName,
-			Status: STATUS_UNKNOWN,
-			InstalledSoftware: installedSoftwareComponent{
-				DisplayName:    windowsVersion.ProductName,
-				DisplayVersion: windowsVersion.CurrentBuild,
-				Publisher:      "Microsoft",
-			},
-			MappedStatus: softwareReleaseStatus{},
-		}
 	}
+
+	Info.Printf("Windows Version <= Windows 8: Not supported by Update Checker")
+	return installedSoftwareMapping{
+		Name:   windowsVersion.ProductName,
+		Status: StatusUnknown,
+		InstalledSoftware: installedSoftwareComponent{
+			DisplayName:    windowsVersion.ProductName,
+			DisplayVersion: windowsVersion.CurrentBuild,
+			Publisher:      "Microsoft",
+		},
+		MappedStatus: softwareReleaseStatus{},
+	}
+
 }

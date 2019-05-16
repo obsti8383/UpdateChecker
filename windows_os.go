@@ -29,9 +29,10 @@ type registryKeys struct {
 	flags   uint32
 }
 
+// WindowsVersion can hold the relevant Major, Minor and so on version numbers of Windows (10)
 type WindowsVersion struct {
 	CurrentMajorVersionNumber, UBR, CurrentMinorVersionNumber uint64
-	CurrentBuild, ReleaseId, ProductName                      string
+	CurrentBuild, ReleaseID, ProductName                      string
 }
 
 // gets Windows version numbers (Major, Minor and CurrentBuild)
@@ -57,22 +58,22 @@ func getWindowsVersion() (windowsVersion WindowsVersion, err error) {
 		return WindowsVersion{0, 0, 0, cb, "", pn}, errors.New("Could not get version information from registry - CurrentMajorVersionNumber")
 	}
 
-	relId, _, err := k.GetStringValue("ReleaseId")
+	relID, _, err := k.GetStringValue("ReleaseId")
 	if err != nil {
 		return WindowsVersion{maj, 0, 0, cb, "", pn}, errors.New("Could not get version information from registry - ReleaseId")
 	}
 
 	ubr, _, err := k.GetIntegerValue("UBR")
 	if err != nil {
-		return WindowsVersion{maj, 0, 0, cb, relId, pn}, errors.New("Could not get version information from registry - UBR")
+		return WindowsVersion{maj, 0, 0, cb, relID, pn}, errors.New("Could not get version information from registry - UBR")
 	}
 
 	min, _, err := k.GetIntegerValue("CurrentMinorVersionNumber")
 	if err != nil {
-		return WindowsVersion{maj, ubr, 0, cb, relId, pn}, errors.New("Could not get version information from registry - CurrentMinorVersionNumber")
+		return WindowsVersion{maj, ubr, 0, cb, relID, pn}, errors.New("Could not get version information from registry - CurrentMinorVersionNumber")
 	}
 
-	return WindowsVersion{maj, ubr, min, cb, relId, pn}, nil
+	return WindowsVersion{maj, ubr, min, cb, relID, pn}, nil
 }
 
 func checkWindowsVersionError(windowsVersion WindowsVersion, err error) {
@@ -82,7 +83,7 @@ func checkWindowsVersionError(windowsVersion WindowsVersion, err error) {
 			windowsVersion.CurrentMajorVersionNumber,
 			windowsVersion.CurrentMinorVersionNumber,
 			windowsVersion.CurrentBuild, windowsVersion.UBR)
-		Info.Printf("Windows Release ID: %s", windowsVersion.ReleaseId)
+		Info.Printf("Windows Release ID: %s", windowsVersion.ReleaseID)
 	} else {
 		if windowsVersion.ProductName != "" {
 			Info.Printf("Windows Product Name: %s", windowsVersion.ProductName)

@@ -24,7 +24,7 @@ import (
 	"runtime"
 )
 
-const RESULT_FILE_NAME = "updatechecker_result.html"
+const resultFileName = "updatechecker_result.html"
 
 // open opens the specified URL in the default browser of the user.
 func openBrowser(url string) error {
@@ -47,7 +47,7 @@ func openBrowser(url string) error {
 func outputResultsInBrowser(installedSoftwareMappings []installedSoftwareMapping) {
 	Trace.Println("Generating results html page...")
 	// Write HTML output
-	outputFile, err := os.Create(RESULT_FILE_NAME)
+	outputFile, err := os.Create(resultFileName)
 	if err != nil {
 		Info.Println(err)
 		os.Exit(1)
@@ -63,7 +63,7 @@ func outputResultsInBrowser(installedSoftwareMappings []installedSoftwareMapping
 
 	// open browser
 	Trace.Println("Opening Browser...")
-	err = openBrowser(RESULT_FILE_NAME)
+	err = openBrowser(resultFileName)
 	if err != nil {
 		Info.Println(err)
 	}
@@ -71,9 +71,9 @@ func outputResultsInBrowser(installedSoftwareMappings []installedSoftwareMapping
 
 func deleteResultHTML() {
 	// if file exists...
-	if _, err := os.Stat(RESULT_FILE_NAME); err == nil {
+	if _, err := os.Stat(resultFileName); err == nil {
 		// delete it
-		err := os.Remove(RESULT_FILE_NAME)
+		err := os.Remove(resultFileName)
 		if err != nil {
 			Info.Println(err)
 			os.Exit(1)

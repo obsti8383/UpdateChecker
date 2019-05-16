@@ -28,8 +28,8 @@ import (
 	"time"
 )
 
-const VERGRABBER_URL = "http://vergrabber.kingu.pl/vergrabber.json"
-const VERGRABBER_FILE = "vergrabber.json"
+const vergrabberURL = "http://vergrabber.kingu.pl/vergrabber.json"
+const vergrabberFile = "vergrabber.json"
 
 // fetches current versions of common software from
 // http://vergrabber.kingu.pl/vergrabber.json
@@ -38,7 +38,7 @@ func getSoftwareVersionsFromVergrabber() map[string]softwareReleaseStatus {
 	softwareReleaseStatii := map[string]softwareReleaseStatus{}
 
 	/// first try to read cached file from filesystem
-	jsonFromVergrabber, err := ioutil.ReadFile(VERGRABBER_FILE)
+	jsonFromVergrabber, err := ioutil.ReadFile(vergrabberFile)
 	if err != nil {
 		Trace.Println("no cached vergrabber.json file available, catching online version")
 		jsonFromVergrabber = downloadAndCacheVergrabberJSON()
@@ -93,18 +93,17 @@ func isVergrabberJSONUptodate(jsonFromVergrabber []byte) bool {
 	if !updatedDate.After(time.Now().Add(-time.Hour * 24 * 2)) {
 		// JSON is outdated
 		return false
-	} else {
-		// JSON is not outdated
-		return true
 	}
+	// JSON is not outdated
+	return true
 }
 
 func downloadAndCacheVergrabberJSON() []byte {
 	// get JSON
 	Info.Println("Downloading vergrabber.json")
-	resp, err := http.Get(VERGRABBER_URL)
+	resp, err := http.Get(vergrabberURL)
 	if err != nil {
-		Info.Println("Could not catch vergrabber json from " + VERGRABBER_URL)
+		Info.Println("Could not catch vergrabber json from " + vergrabberURL)
 		panic(err)
 	}
 	defer resp.Body.Close()
@@ -117,7 +116,7 @@ func downloadAndCacheVergrabberJSON() []byte {
 	}
 
 	// Write file to disk
-	outputFile, err := os.Create(VERGRABBER_FILE)
+	outputFile, err := os.Create(vergrabberFile)
 	if err != nil {
 		Info.Println(err)
 	}
