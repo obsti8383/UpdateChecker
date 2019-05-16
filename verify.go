@@ -142,27 +142,32 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 						if compareVersionStrings(statValue.Version, version) == 0 {
 							upToDate = true
 						}
-					}
-
-					/*else if strings.HasPrefix(statName, name) {
+					} else if strings.HasPrefix(statName, name) {
 						if mappedStatValue.Version != "" {
-							if compareVersionStrings(mappedStatValue.Version, statValue.Version) > 0 {
-								// ignore, we already found a newer release
+							// ignore, we already found a correct release
+						} else {
+							Trace.Printf("Name only mapping found for %s", statName)
+
+							compareResult := compareVersionStrings(statValue.Version, version)
+							if compareResult == 0 {
+								found = true
+								mappedStatValue = statValue
+								upToDate = true
+							} else if compareResult < 0 {
+								// perhaps newer version as we know of (e.g. for Java) -> leave on unknown
 							} else {
 								found = true
 								mappedStatValue = statValue
-								if compareVersionStrings(statValue.Version, version) == 0 {
-									upToDate = true
-								}
 							}
-						} else {
+						}
+						/*} else {
 							found = true
 							mappedStatValue = statValue
 							if compareVersionStrings(statValue.Version, version) == 0 {
 								upToDate = true
 							}
-						}
-					}*/
+						}*/
+					}
 				}
 			}
 		}
