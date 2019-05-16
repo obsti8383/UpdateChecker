@@ -107,7 +107,7 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 		}
 
 		// other software
-		softwares := []string{"Google Chrome", "OpenVPN", "Adobe Flash",
+		softwares := []string{"Google Chrome", "OpenVPN", "Adobe Flash Player",
 			"Adobe Acrobat Reader", "7-Zip", "TeamViewer",
 			"Mozilla Thunderbird", "VeraCrypt", "Java"}
 		for _, name := range softwares {
