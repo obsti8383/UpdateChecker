@@ -1,10 +1,10 @@
 {
     "signature": {
         "app": "vergrabber",
-        "version": "3.2.1",
+        "version": "3.2.3",
         "author": "Tomasz Krol",
         "notice": "If there is something broken or could be improved - please email me at vergrabber@kingu.pl",
-        "updated": "2019-05-01"
+        "updated": "2019-05-16"
     },
     "server": {
         "MySQL": {
@@ -50,43 +50,53 @@
             }
         },
         "Linux Kernel": {
+            "5.1": {
+                "product": "Linux Kernel",
+                "edition": "5.1",
+                "version": "5.1.2",
+                "stable": true,
+                "latest": true,
+                "released": "2019-05-14",
+                "ends": "9999-12-31",
+                "lts": null
+            },
             "5.0": {
                 "product": "Linux Kernel",
                 "edition": "5.0",
-                "version": "5.0.10",
+                "version": "5.0.16",
                 "stable": true,
                 "latest": true,
-                "released": "2019-04-27",
+                "released": "2019-05-14",
                 "ends": "9999-12-31",
                 "lts": null
             },
             "4.19": {
                 "product": "Linux Kernel",
                 "edition": "4.19",
-                "version": "4.19.37",
+                "version": "4.19.43",
                 "stable": true,
                 "latest": false,
-                "released": "2019-04-27",
+                "released": "2019-05-14",
                 "ends": "9999-12-31",
                 "lts": null
             },
             "4.14": {
                 "product": "Linux Kernel",
                 "edition": "4.14",
-                "version": "4.14.114",
+                "version": "4.14.119",
                 "stable": true,
                 "latest": false,
-                "released": "2019-04-27",
+                "released": "2019-05-14",
                 "ends": "9999-12-31",
                 "lts": null
             },
             "4.9": {
                 "product": "Linux Kernel",
                 "edition": "4.9",
-                "version": "4.9.171",
+                "version": "4.9.176",
                 "stable": true,
                 "latest": false,
-                "released": "2019-04-27",
+                "released": "2019-05-14",
                 "ends": "9999-12-31",
                 "lts": null
             },
@@ -113,10 +123,10 @@
             "3.16": {
                 "product": "Linux Kernel",
                 "edition": "3.16",
-                "version": "3.16.65",
+                "version": "3.16.67",
                 "stable": true,
                 "latest": false,
-                "released": "2019-04-04",
+                "released": "2019-05-11",
                 "ends": "9999-12-31",
                 "lts": null
             }
@@ -137,7 +147,7 @@
             "7.1": {
                 "product": "PHP",
                 "edition": "7.1",
-                "version": "7.1.28",
+                "version": "7.1.29",
                 "stable": true,
                 "latest": false,
                 "released": "2016-12-01",
@@ -147,7 +157,7 @@
             "7.2": {
                 "product": "PHP",
                 "edition": "7.2",
-                "version": "7.2.17",
+                "version": "7.2.18",
                 "stable": true,
                 "latest": false,
                 "released": "2017-11-30",
@@ -157,7 +167,7 @@
             "7.3": {
                 "product": "PHP",
                 "edition": "7.3",
-                "version": "7.3.4",
+                "version": "7.3.5",
                 "stable": true,
                 "latest": true,
                 "released": "2018-12-06",
@@ -213,7 +223,7 @@
             "3.4": {
                 "product": "Symfony",
                 "edition": "3.4",
-                "version": "3.4.26",
+                "version": "3.4.27",
                 "stable": true,
                 "latest": false,
                 "released": "2017-11-01",
@@ -223,7 +233,7 @@
             "4.2": {
                 "product": "Symfony",
                 "edition": "4.2",
-                "version": "4.2.7",
+                "version": "4.2.8",
                 "stable": true,
                 "latest": true,
                 "released": "2018-11-01",
@@ -249,30 +259,30 @@
             "DC 19": {
                 "product": "Adobe Acrobat Reader",
                 "edition": "DC 19",
-                "version": "19.010.20100",
+                "version": "19.012.20034",
                 "stable": true,
                 "latest": true,
-                "released": "2019-04-16",
+                "released": "2019-05-14",
                 "ends": "9999-12-31",
                 "lts": null
             },
             "DC 17": {
                 "product": "Adobe Acrobat Reader",
                 "edition": "DC 17",
-                "version": "17.011.30140",
+                "version": "17.011.30142",
                 "stable": true,
                 "latest": false,
-                "released": "2019-04-16",
+                "released": "2019-05-14",
                 "ends": "9999-12-31",
                 "lts": null
             },
             "DC 15": {
                 "product": "Adobe Acrobat Reader",
                 "edition": "DC 15",
-                "version": "15.006.30495",
+                "version": "15.006.30497",
                 "stable": true,
                 "latest": false,
-                "released": "2019-04-16",
+                "released": "2019-05-14",
                 "ends": "9999-12-31",
                 "lts": null
             }
@@ -293,10 +303,10 @@
             "32": {
                 "product": "Adobe Flash Player",
                 "edition": "32",
-                "version": "32.0.0.171",
+                "version": "32.0.0.192",
                 "stable": true,
                 "latest": true,
-                "released": "2019-04-25",
+                "released": "2019-05-14",
                 "ends": "9999-12-31",
                 "lts": null
             }
@@ -305,10 +315,10 @@
             "74.0": {
                 "product": "Google Chrome",
                 "edition": "74.0",
-                "version": "74.0.3729.131",
+                "version": "74.0.3729.157",
                 "stable": true,
                 "latest": true,
-                "released": "2019-04-30",
+                "released": "2019-05-14",
                 "ends": "9999-12-31",
                 "lts": null
             }
@@ -317,40 +327,40 @@
             "1809": {
                 "product": "Microsoft Windows 10",
                 "edition": "1809",
-                "version": "17763.437",
+                "version": "17763.503",
                 "stable": true,
                 "latest": true,
-                "released": "2019-04-09",
+                "released": "2019-05-14",
                 "ends": "2020-05-12",
                 "lts": null
             },
             "1803": {
                 "product": "Microsoft Windows 10",
                 "edition": "1803",
-                "version": "17134.753",
+                "version": "17134.765",
                 "stable": true,
                 "latest": false,
-                "released": "2019-04-25",
+                "released": "2019-05-14",
                 "ends": "2019-11-12",
                 "lts": null
             },
             "1709": {
                 "product": "Microsoft Windows 10",
                 "edition": "1709",
-                "version": "16299.1127",
+                "version": "16299.1146",
                 "stable": true,
                 "latest": false,
-                "released": "2019-04-25",
+                "released": "2019-05-14",
                 "ends": "2019-04-09",
                 "lts": null
             },
             "1703": {
                 "product": "Microsoft Windows 10",
                 "edition": "1703",
-                "version": "15063.1784",
+                "version": "15063.1805",
                 "stable": true,
                 "latest": false,
-                "released": "2019-04-25",
+                "released": "2019-05-14",
                 "ends": "2018-10-09",
                 "lts": null
             }
@@ -371,20 +381,20 @@
             "60.6": {
                 "product": "Mozilla Firefox",
                 "edition": "60.6",
-                "version": "60.6.1",
+                "version": "60.6.3",
                 "stable": true,
                 "latest": false,
-                "released": "2019-03-22",
+                "released": "2019-05-08",
                 "ends": "9999-12-31",
                 "lts": null
             },
             "66.0": {
                 "product": "Mozilla Firefox",
                 "edition": "66.0",
-                "version": "66.0.3",
+                "version": "66.0.5",
                 "stable": true,
                 "latest": true,
-                "released": "2019-04-10",
+                "released": "2019-05-07",
                 "ends": "9999-12-31",
                 "lts": null
             }
@@ -441,10 +451,10 @@
             "Linux Kernel": {
                 "product": "Linux Kernel",
                 "edition": "5.0",
-                "version": "5.0.10",
+                "version": "5.0.16",
                 "stable": true,
                 "latest": true,
-                "released": "2019-04-27",
+                "released": "2019-05-14",
                 "ends": "9999-12-31",
                 "lts": null
             },
@@ -461,7 +471,7 @@
             "PHP": {
                 "product": "PHP",
                 "edition": "7.3",
-                "version": "7.3.4",
+                "version": "7.3.5",
                 "stable": true,
                 "latest": true,
                 "released": "2018-12-06",
@@ -491,7 +501,7 @@
             "Symfony": {
                 "product": "Symfony",
                 "edition": "4.2",
-                "version": "4.2.7",
+                "version": "4.2.8",
                 "stable": true,
                 "latest": true,
                 "released": "2018-11-01",
@@ -513,10 +523,10 @@
             "Adobe Acrobat Reader": {
                 "product": "Adobe Acrobat Reader",
                 "edition": "DC 19",
-                "version": "19.010.20100",
+                "version": "19.012.20034",
                 "stable": true,
                 "latest": true,
-                "released": "2019-04-16",
+                "released": "2019-05-14",
                 "ends": "9999-12-31",
                 "lts": null
             },
@@ -533,30 +543,30 @@
             "Adobe Flash Player": {
                 "product": "Adobe Flash Player",
                 "edition": "32",
-                "version": "32.0.0.171",
+                "version": "32.0.0.192",
                 "stable": true,
                 "latest": true,
-                "released": "2019-04-25",
+                "released": "2019-05-14",
                 "ends": "9999-12-31",
                 "lts": null
             },
             "Google Chrome": {
                 "product": "Google Chrome",
                 "edition": "74.0",
-                "version": "74.0.3729.131",
+                "version": "74.0.3729.157",
                 "stable": true,
                 "latest": true,
-                "released": "2019-04-30",
+                "released": "2019-05-14",
                 "ends": "9999-12-31",
                 "lts": null
             },
             "Microsoft Windows 10": {
                 "product": "Microsoft Windows 10",
                 "edition": "1809",
-                "version": "17763.437",
+                "version": "17763.503",
                 "stable": true,
                 "latest": true,
-                "released": "2019-04-09",
+                "released": "2019-05-14",
                 "ends": "2020-05-12",
                 "lts": null
             },
@@ -573,10 +583,10 @@
             "Mozilla Firefox": {
                 "product": "Mozilla Firefox",
                 "edition": "66.0",
-                "version": "66.0.3",
+                "version": "66.0.5",
                 "stable": true,
                 "latest": true,
-                "released": "2019-04-10",
+                "released": "2019-05-07",
                 "ends": "9999-12-31",
                 "lts": null
             },

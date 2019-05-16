@@ -115,14 +115,36 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 				version := installedComponent.DisplayVersion
 				versionSplit := strings.Split(version, ".")
 				minorVersion := versionSplit[0] + "." + versionSplit[1]
+				majorVersion := versionSplit[0]
 				for statName, statValue := range softwareReleaseStatii {
 					if strings.HasPrefix(statName, name+" "+minorVersion) {
+						Trace.Printf("Minor version mapping found for %s", statName)
+
 						mappedStatValue = statValue
 						found = true
 						if compareVersionStrings(statValue.Version, version) == 0 {
 							upToDate = true
 						}
-					} else if strings.HasPrefix(statName, name) {
+					} else if strings.HasPrefix(statName, name+" "+majorVersion) {
+						Trace.Printf("Major version mapping found for %s", statName)
+
+						mappedStatValue = statValue
+						found = true
+						if compareVersionStrings(statValue.Version, version) == 0 {
+							upToDate = true
+						}
+					} else if strings.HasPrefix(statName, name+" DC "+majorVersion) {
+						//required for Adobe Reader ("DC 19" and so on)
+						Trace.Printf("Adobe Reader version mapping found for %s", statName)
+
+						mappedStatValue = statValue
+						found = true
+						if compareVersionStrings(statValue.Version, version) == 0 {
+							upToDate = true
+						}
+					}
+
+					/*else if strings.HasPrefix(statName, name) {
 						if mappedStatValue.Version != "" {
 							if compareVersionStrings(mappedStatValue.Version, statValue.Version) > 0 {
 								// ignore, we already found a newer release
@@ -140,7 +162,7 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 								upToDate = true
 							}
 						}
-					}
+					}*/
 				}
 			}
 		}
