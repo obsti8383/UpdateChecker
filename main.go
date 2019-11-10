@@ -91,7 +91,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	initLogging(logfile, os.Stdout)
+	initLogging(logfile, logfile)
 
 	var installedSoftwareMappings []installedSoftwareMapping
 

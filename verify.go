@@ -104,6 +104,39 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 			}
 		}
 
+		// LibreOffice (special due to fresh and still releases)
+		if strings.HasPrefix(installedComponent.DisplayName, "LibreOffice") {
+
+			version := installedComponent.DisplayVersion
+			versionSplit := strings.Split(version, ".")
+			minorVersion := versionSplit[0] + "." + versionSplit[1]
+			currentRelease, inStatii := softwareReleaseStatii["LibreOffice "+minorVersion]
+			if inStatii {
+				mappedStatValue = currentRelease
+				found = true
+				if compareVersionStrings(currentRelease.Version, version) == 0 {
+					upToDate = true
+				}
+			} else {
+				// go through all versions and select newest
+				for statName, statValue := range softwareReleaseStatii {
+					if strings.HasPrefix(statName, "LibreOffice") {
+						if mappedStatValue.Version != "" {
+							if compareVersionStrings(mappedStatValue.Version, statValue.Version) > 0 {
+								// ignore, we already found a newer release
+							} else {
+								found = true
+								mappedStatValue = statValue
+							}
+						} else {
+							found = true
+							mappedStatValue = statValue
+						}
+					}
+				}
+			}
+		}
+
 		// other software
 		softwares := []string{"Google Chrome", "OpenVPN", "Adobe Flash Player",
 			"Adobe Acrobat Reader", "7-Zip", "TeamViewer",
