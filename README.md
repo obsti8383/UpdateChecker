@@ -36,4 +36,11 @@ Only there after first start of UpdateChecker.exe:
 * UpdateChecker.log: Log output, check for errors if something doesn't work as expected or no Webpage is opened in your browser
 
 # Usage
-Just start UpdateChecker.exe and wait some moments. UpdateChecker fetches the current versions from https://vergrabber.kingu.pl/ and thereafter verifies your installed software and shows the results in your standard web browser.
+Just start UpdateChecker.exe and wait some moments (you don't need administrative rights). UpdateChecker fetches the current versions from https://vergrabber.kingu.pl/ and thereafter verifies your installed software and shows the results in your standard web browser.
+
+![ResultsScreenshot](./graphics/result1.jpg)
+
+The column "Status" shows you the state of the listed software installation:
+* Outdated: Updates are available. It is recommended to install the recent version to be sure you have the latest security patches applied.
+* Up-to-date: The most recent version is installed.
+* Unkown status: This software is not known to UpdateChecker
