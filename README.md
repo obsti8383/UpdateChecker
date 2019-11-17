@@ -17,7 +17,7 @@ Currently supports:
 * TeamViewer
 * Mozilla Thunderbird
 * VeraCrypt
-* Java
+* Java 8
 * LibreOffice (in preparation)
 
 
