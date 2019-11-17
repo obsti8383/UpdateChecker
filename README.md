@@ -36,7 +36,7 @@ Only there after first start of UpdateChecker.exe:
 * UpdateChecker.log: Log output, check for errors if something doesn't work as expected or no Webpage is opened in your browser
 
 # Usage
-Just start UpdateChecker.exe and wait some moments (you don't need administrative rights). UpdateChecker fetches the current versions from https://vergrabber.kingu.pl/ and thereafter verifies your installed software and shows the results in your standard web browser.
+Just start UpdateChecker.exe (you don't need administrative rights) and wait a second. UpdateChecker fetches the current versions from https://vergrabber.kingu.pl/ and thereafter verifies your installed software and shows the results in your standard web browser.
 
 ![ResultsScreenshot](./graphics/result1.jpg)
 
