@@ -28,11 +28,11 @@ import (
 	"time"
 )
 
-const vergrabberURL = "http://vergrabber.kingu.pl/vergrabber.json"
+const vergrabberURL = "https://vergrabber.kingu.pl/vergrabber.json"
 const vergrabberFile = "vergrabber.json"
 
 // fetches current versions of common software from
-// http://vergrabber.kingu.pl/vergrabber.json
+// https://vergrabber.kingu.pl/vergrabber.json
 func getSoftwareVersionsFromVergrabber() map[string]softwareReleaseStatus {
 	var jsonFromVergrabber []byte
 	softwareReleaseStatii := map[string]softwareReleaseStatus{}
