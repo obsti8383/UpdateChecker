@@ -110,11 +110,12 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 			version := installedComponent.DisplayVersion
 			versionSplit := strings.Split(version, ".")
 			minorVersion := versionSplit[0] + "." + versionSplit[1]
+			subMinorVersion := versionSplit[0] + "." + versionSplit[1] + "." + versionSplit[2]
 			currentRelease, inStatii := softwareReleaseStatii["LibreOffice "+minorVersion]
 			if inStatii {
 				mappedStatValue = currentRelease
 				found = true
-				if compareVersionStrings(currentRelease.Version, version) == 0 {
+				if compareVersionStrings(currentRelease.Version, subMinorVersion) == 0 {
 					upToDate = true
 				}
 			} else {
