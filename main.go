@@ -1,5 +1,5 @@
 // Update Checker
-// Copyright (C) 2019  Florian Probst
+// Copyright (C) 2020  Florian Probst
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,7 +24,12 @@ import (
 	"os"
 	"sort"
 	"strings"
+
+	"github.com/blang/semver"
+	"github.com/rhysd/go-github-selfupdate/selfupdate"
 )
+
+const version = "0.2.2"
 
 const logpath = "UpdateChecker.log"
 
@@ -93,6 +98,8 @@ func main() {
 	}
 	initLogging(logfile, logfile)
 
+	doSelfUpdate()
+
 	var installedSoftwareMappings []installedSoftwareMapping
 
 	// cleanup from last run
@@ -139,4 +146,20 @@ func main() {
 
 	// write results to HTML file and open in browser
 	outputResultsInBrowser(installedSoftwareMappings)
+}
+
+func doSelfUpdate() {
+	v := semver.MustParse(version)
+	latest, err := selfupdate.UpdateSelf(v, "obsti8383/UpdateChecker")
+	if err != nil {
+		Info.Println("Binary update failed:", err)
+		return
+	}
+	if latest.Version.Equals(v) {
+		// latest version is the same as current version. It means current binary is up to date.
+		Info.Println("Current binary is the latest version", version)
+	} else {
+		Info.Println("Successfully updated to version", latest.Version)
+		Info.Println("Release note:\n", latest.ReleaseNotes)
+	}
 }
