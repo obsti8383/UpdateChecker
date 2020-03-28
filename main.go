@@ -148,6 +148,7 @@ func main() {
 	outputResultsInBrowser(installedSoftwareMappings)
 }
 
+// updates the exe file (only)
 func doSelfUpdate() {
 	v := semver.MustParse(version)
 	latest, err := selfupdate.UpdateSelf(v, "obsti8383/UpdateChecker")

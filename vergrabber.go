@@ -1,5 +1,5 @@
 // Update Checker
-// Copyright (C) 2019  Florian Probst
+// Copyright (C) 2020  Florian Probst
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,6 +26,8 @@ import (
 	"os"
 	"regexp"
 	"time"
+
+	"github.com/sqweek/dialog"
 )
 
 const vergrabberURL = "https://vergrabber.kingu.pl/vergrabber.json"
@@ -44,6 +46,7 @@ func getSoftwareVersionsFromVergrabber() map[string]softwareReleaseStatus {
 		jsonFromVergrabber = downloadAndCacheVergrabberJSON()
 		if !isVergrabberJSONUptodate(jsonFromVergrabber) {
 			Info.Println("Downloaded vergrabber.json is not up-to-date")
+			dialog.Message("%s", "Downloaded vergrabber.json is not up-to-date. Aborting!").Title("Error").Error()
 			panic("Downloaded vergrabber.json is not up-to-date")
 		}
 	} else {
@@ -54,6 +57,7 @@ func getSoftwareVersionsFromVergrabber() map[string]softwareReleaseStatus {
 			jsonUptodate := isVergrabberJSONUptodate(jsonFromVergrabber)
 			if !jsonUptodate {
 				Info.Println("Downloaded vergrabber.json is not up-to-date")
+				dialog.Message("%s", "Downloaded vergrabber.json is not up-to-date. Aborting!").Title("Error").Error()
 				panic("Downloaded vergrabber.json is not up-to-date")
 			}
 		}
@@ -86,6 +90,7 @@ func isVergrabberJSONUptodate(jsonFromVergrabber []byte) bool {
 	updatedDate, err := getVergrabberUpdateDate(jsonFromVergrabber)
 	if err != nil {
 		Info.Println("Downloaded vergrabber.json is not up-to-date")
+		dialog.Message("%s", "Downloaded vergrabber.json is not up-to-date. Aborting!").Title("Error").Error()
 		panic("Downloaded vergrabber.json is not up-to-date")
 	}
 
@@ -104,6 +109,7 @@ func downloadAndCacheVergrabberJSON() []byte {
 	resp, err := http.Get(vergrabberURL)
 	if err != nil {
 		Info.Println("Could not catch vergrabber json from " + vergrabberURL)
+		dialog.Message("%s", "Could not catch vergrabber json from "+vergrabberURL).Title("Error").Error()
 		panic(err)
 	}
 	defer resp.Body.Close()
@@ -112,6 +118,7 @@ func downloadAndCacheVergrabberJSON() []byte {
 	jsonFromVergrabber, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		Info.Println("Error reading vergrabber json: " + err.Error())
+		dialog.Message("%s", "Error reading vergrabber json: "+err.Error()).Title("Error").Error()
 		panic(err)
 	}
 
@@ -119,11 +126,13 @@ func downloadAndCacheVergrabberJSON() []byte {
 	outputFile, err := os.Create(vergrabberFile)
 	if err != nil {
 		Info.Println(err)
+		dialog.Message("%s", err).Title("Info").Info()
 	}
 	defer outputFile.Close()
 	_, err = outputFile.Write(jsonFromVergrabber)
 	if err != nil {
 		Info.Println(err)
+		dialog.Message("%s", err).Title("Info").Info()
 	}
 
 	return jsonFromVergrabber

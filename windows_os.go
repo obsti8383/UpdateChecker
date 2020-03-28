@@ -1,5 +1,5 @@
 // Update Checker
-// Copyright (C) 2019  Florian Probst
+// Copyright (C) 2020  Florian Probst
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package main
 import (
 	"errors"
 
+	"github.com/sqweek/dialog"
 	"golang.org/x/sys/windows/registry"
 )
 
@@ -92,6 +93,7 @@ func checkWindowsVersionError(windowsVersion WindowsVersion, err error) {
 			}
 		} else {
 			Info.Printf("Error getting Windows Version: %s", err)
+			dialog.Message("%s %s", "Error getting Windows Version:", err).Title("Error").Error()
 		}
 	}
 }

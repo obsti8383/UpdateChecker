@@ -1,5 +1,5 @@
 // Update Checker
-// Copyright (C) 2019  Florian Probst
+// Copyright (C) 2020  Florian Probst
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+
+	"github.com/sqweek/dialog"
 )
 
 const resultFileName = "updatechecker_result.html"
@@ -50,6 +52,7 @@ func outputResultsInBrowser(installedSoftwareMappings []installedSoftwareMapping
 	outputFile, err := os.Create(resultFileName)
 	if err != nil {
 		Info.Println(err)
+		dialog.Message("%s", "Error writing output file. Aborting!").Title("Error").Error()
 		os.Exit(1)
 	}
 	defer outputFile.Close()
@@ -76,6 +79,7 @@ func deleteResultHTML() {
 		err := os.Remove(resultFileName)
 		if err != nil {
 			Info.Println(err)
+			dialog.Message("%s", "Error deleting old output file. Aborting!").Title("Error").Error()
 			os.Exit(1)
 		}
 
