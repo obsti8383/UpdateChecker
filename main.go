@@ -25,11 +25,15 @@ import (
 	"sort"
 	"strings"
 
+	"fyne.io/fyne"
+	"fyne.io/fyne/app"
+	"fyne.io/fyne/widget"
+
 	"github.com/blang/semver"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
 )
 
-const version = "0.2.2"
+const version = "0.2.3"
 
 const logpath = "UpdateChecker.log"
 
@@ -105,6 +109,22 @@ func main() {
 	// cleanup from last run
 	deleteResultHTML()
 
+	// build up main windows
+	a := app.New()
+	w := a.NewWindow("Update Checker")
+	w.SetContent(&widget.Box{Children: []fyne.CanvasObject{
+		&widget.Label{Text: "Hello Fyne!"},
+		&widget.Button{Text: "Quit", OnTapped: func() {
+			a.Quit()
+		}},
+	}})
+
+	go main2()
+
+	mainWindow.ShowAndRun()
+}
+
+func main2() {
 	// fetch Windows version
 	windowsVersion, err := getWindowsVersion()
 	checkWindowsVersionError(windowsVersion, err)
@@ -146,6 +166,7 @@ func main() {
 
 	// write results to HTML file and open in browser
 	outputResultsInBrowser(installedSoftwareMappings)
+
 }
 
 // updates the exe file (only)
