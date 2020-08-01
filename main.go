@@ -104,15 +104,13 @@ func main() {
 
 	doSelfUpdate()
 
-	var installedSoftwareMappings []installedSoftwareMapping
-
 	// cleanup from last run
 	deleteResultHTML()
 
 	// build up main windows
 	a := app.New()
-	w := a.NewWindow("Update Checker")
-	w.SetContent(&widget.Box{Children: []fyne.CanvasObject{
+	mainWindow := a.NewWindow("Update Checker")
+	mainWindow.SetContent(&widget.Box{Children: []fyne.CanvasObject{
 		&widget.Label{Text: "Hello Fyne!"},
 		&widget.Button{Text: "Quit", OnTapped: func() {
 			a.Quit()
@@ -125,6 +123,8 @@ func main() {
 }
 
 func main2() {
+	var installedSoftwareMappings []installedSoftwareMapping
+
 	// fetch Windows version
 	windowsVersion, err := getWindowsVersion()
 	checkWindowsVersionError(windowsVersion, err)
