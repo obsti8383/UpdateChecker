@@ -78,7 +78,7 @@ func createFyneAppWindow() fyne.Window {
 	a.Settings().SetTheme(theme.LightTheme())
 
 	InstalledColumn = widget.NewVBox(widget.NewLabelWithStyle(
-		"Installed Software           ",
+		"Installed Software                     ",
 		fyne.TextAlignLeading,
 		fyne.TextStyle{Bold: true}))
 	StatusColumn = widget.NewVBox(widget.NewLabelWithStyle(
@@ -94,7 +94,7 @@ func createFyneAppWindow() fyne.Window {
 		fyne.TextAlignLeading,
 		fyne.TextStyle{Bold: true}))
 	RecentVersionReleaseDateColumn = widget.NewVBox(widget.NewLabelWithStyle(
-		"Recent Version Release Date",
+		"Release Date",
 		fyne.TextAlignLeading,
 		fyne.TextStyle{Bold: true}))
 
