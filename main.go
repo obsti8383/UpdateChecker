@@ -25,10 +25,6 @@ import (
 	"sort"
 	"strings"
 
-	"fyne.io/fyne"
-	"fyne.io/fyne/app"
-	"fyne.io/fyne/widget"
-
 	"github.com/blang/semver"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
 )
@@ -104,18 +100,8 @@ func main() {
 
 	doSelfUpdate()
 
-	// cleanup from last run
-	deleteResultHTML()
-
 	// build up main windows
-	a := app.New()
-	mainWindow := a.NewWindow("Update Checker")
-	mainWindow.SetContent(&widget.Box{Children: []fyne.CanvasObject{
-		&widget.Label{Text: "Hello Fyne!"},
-		&widget.Button{Text: "Quit", OnTapped: func() {
-			a.Quit()
-		}},
-	}})
+	mainWindow := createFyneAppWindow()
 
 	go main2()
 
@@ -165,7 +151,8 @@ func main2() {
 	installedSoftwareMappings = append(newMappings, installedSoftwareMappings...)
 
 	// write results to HTML file and open in browser
-	outputResultsInBrowser(installedSoftwareMappings)
+	//outputResultsInBrowser(installedSoftwareMappings)
+	outputResults(installedSoftwareMappings)
 
 }
 
