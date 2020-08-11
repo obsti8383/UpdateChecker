@@ -71,6 +71,11 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 		var found = false
 		var mappedStatValue softwareReleaseStatus
 
+		// ignore list
+		if strings.HasPrefix(installedComponent.DisplayName, "Java Auto Updater") {
+			continue
+		}
+
 		// Firefox (special due to long term support releases)
 		if strings.HasPrefix(installedComponent.DisplayName, "Mozilla Firefox") {
 
@@ -154,7 +159,7 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 
 						mappedStatValue = statValue
 						found = true
-						if compareVersionStrings(statValue.Version, version) == 0 {
+						if strings.HasPrefix(version, statValue.Version) { //compareVersionStrings(, ) == 0 {
 							upToDate = true
 						}
 					} else if strings.HasPrefix(statName, name+" "+majorVersion) {
@@ -162,7 +167,7 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 
 						mappedStatValue = statValue
 						found = true
-						if compareVersionStrings(statValue.Version, version) == 0 {
+						if strings.HasPrefix(version, statValue.Version) {
 							upToDate = true
 						}
 					} else if strings.HasPrefix(statName, name+" DC "+majorVersion) {
@@ -171,7 +176,7 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 
 						mappedStatValue = statValue
 						found = true
-						if compareVersionStrings(statValue.Version, version) == 0 {
+						if strings.HasPrefix(version, statValue.Version) {
 							upToDate = true
 						}
 					} else if strings.HasPrefix(statName, name) {
