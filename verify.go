@@ -143,8 +143,22 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 			}
 		}
 
+		// "Adobe Flash Player"
+		if strings.HasPrefix(installedComponent.DisplayName, "Adobe Flash Player") {
+
+			upToDate = false
+			found = true
+			mappedStatValue = softwareReleaseStatus{
+				Name:     "Adobe Flash Player",
+				Version:  "out of service - please uninstall",
+				Released: "2020-12-31",
+				Ends:     "2020-12-31",
+			}
+
+		}
+
 		// other software
-		softwares := []string{"Google Chrome", "OpenVPN", "Adobe Flash Player",
+		softwares := []string{"Google Chrome", "OpenVPN",
 			"Adobe Acrobat Reader", "7-Zip", "TeamViewer",
 			"Mozilla Thunderbird", "VeraCrypt", "Java"}
 		for _, name := range softwares {
