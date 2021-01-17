@@ -145,7 +145,6 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 
 		// "Adobe Flash Player"
 		if strings.HasPrefix(installedComponent.DisplayName, "Adobe Flash Player") {
-
 			upToDate = false
 			found = true
 			mappedStatValue = softwareReleaseStatus{
@@ -157,9 +156,34 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 
 		}
 
+		// "Adobe Acrobat Reader"
+		if strings.HasPrefix(installedComponent.DisplayName, "Adobe Acrobat Reader") {
+			version := installedComponent.DisplayVersion
+			adobeName := "Adobe Acrobat Reader"
+			if strings.HasPrefix(installedComponent.DisplayName, "Adobe Acrobat Reader DC") {
+				// DC version
+				adobeName += " DC"
+			} else {
+				adobeName = installedComponent.DisplayName[0:25]
+			}
+			Trace.Printf("Adobe name: " + adobeName)
+
+			for statName, statValue := range softwareReleaseStatii {
+				if strings.HasPrefix(statName, adobeName) {
+					Trace.Printf("Adobe Reader version mapping found for %s", statName)
+
+					mappedStatValue = statValue
+					found = true
+					if strings.HasPrefix(version, statValue.Version) {
+						upToDate = true
+					}
+				}
+			}
+		}
+
 		// other software
 		softwares := []string{"Google Chrome", "OpenVPN",
-			"Adobe Acrobat Reader", "7-Zip", "TeamViewer",
+			"7-Zip", "TeamViewer",
 			"Mozilla Thunderbird", "VeraCrypt", "Java"}
 		for _, name := range softwares {
 			if strings.HasPrefix(installedComponent.DisplayName, name) {
@@ -178,15 +202,6 @@ func verifyInstalledSoftwareVersions(installedSoftware map[string]installedSoftw
 						}
 					} else if strings.HasPrefix(statName, name+" "+majorVersion) {
 						Trace.Printf("Major version mapping found for %s", statName)
-
-						mappedStatValue = statValue
-						found = true
-						if strings.HasPrefix(version, statValue.Version) {
-							upToDate = true
-						}
-					} else if strings.HasPrefix(statName, name+" DC "+majorVersion) {
-						//required for Adobe Reader ("DC 19" and so on)
-						Trace.Printf("Adobe Reader version mapping found for %s", statName)
 
 						mappedStatValue = statValue
 						found = true
