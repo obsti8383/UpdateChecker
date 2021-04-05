@@ -29,7 +29,7 @@ import (
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
 )
 
-const version = "0.2.2"
+const version = "0.2.3"
 
 const logpath = "UpdateChecker.log"
 
@@ -150,8 +150,7 @@ func main2() {
 	newMappings = append(newMappings, windowsMapping)
 	installedSoftwareMappings = append(newMappings, installedSoftwareMappings...)
 
-	// write results to HTML file and open in browser
-	//outputResultsInBrowser(installedSoftwareMappings)
+	// show results
 	outputResults(installedSoftwareMappings)
 
 }
