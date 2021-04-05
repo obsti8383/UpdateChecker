@@ -10,6 +10,7 @@ require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/google/go-github v17.0.0+incompatible // indirect
 	github.com/gotk3/gotk3 v0.4.0 // indirect
+	github.com/josephspurrier/goversioninfo v1.2.0 // indirect
 	github.com/mattn/go-gtk v0.0.0-20180216084204-5a311a1830ab // indirect
 	github.com/mattn/go-pointer v0.0.0-20171114154726-1d30dc4b6f28 // indirect
 	github.com/rhysd/go-github-selfupdate v1.2.3

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-//go:generate goversioninfo -icon=icon.ico
+//go:generate goversioninfo -icon=icon.ico -64
 
 package main
 

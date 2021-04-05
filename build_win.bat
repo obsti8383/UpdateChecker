@@ -8,5 +8,7 @@ set CGO_ENABLED=1
 
 go clean
 go get
+go get github.com/josephspurrier/goversioninfo/cmd/goversioninfo
 go fmt
+go generate
 go build --ldflags "-s -w -extldflags '-static' -H windowsgui" -o UpdateChecker.exe
