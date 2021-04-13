@@ -67,7 +67,7 @@ func outputResults(installedSoftwareMappings []installedSoftwareMapping) {
 				RecentVersionReleaseDateColumn.Append(widget.NewLabel(
 					entry.MappedStatus.Released))
 			} else {
-				RecentVersionColumn.Append(widget.NewLabel("not available"))
+				RecentVersionReleaseDateColumn.Append(widget.NewLabel("not available"))
 			}
 		}
 	}
