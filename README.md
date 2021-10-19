@@ -20,7 +20,7 @@ Currently supported are:
 * LibreOffice
 
 
-UpdateChecker ist Open Source (GPL 3.0), doesn't track you and is ad-free. The only online connection goes to https://vergrabber.kingu.pl/ to fetch the software release JSON file.
+UpdateChecker is Open Source (GPL 3.0), doesn't track you and is ad-free. The only online connection goes to https://vergrabber.kingu.pl/ to fetch the software release JSON file.
 
 # Installation
 Just unzip the provided ZIP-File to a location that fits your needs.
