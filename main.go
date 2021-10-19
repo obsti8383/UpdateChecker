@@ -29,7 +29,7 @@ import (
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
 )
 
-const version = "0.2.4"
+const version = "0.2.5"
 
 const logpath = "UpdateChecker.log"
 
