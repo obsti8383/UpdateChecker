@@ -1,4 +1,8 @@
 # UpdateChecker Overview
+
+![Go Vet and Lint Status](https://github.com/obsti8383/UpdateChecker/actions/workflows/golang_lint_vet_and_testBuild.yml/badge.svg)
+
+
 Checks for software release states on Windows systems.
 
 Only finds software installed via regular Windows Installer (no "portable" software)

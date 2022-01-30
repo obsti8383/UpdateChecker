@@ -1,5 +1,5 @@
 // Update Checker
-// Copyright (C) 2020  Florian Probst
+// Copyright (C) 2020-22  Florian Probst
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,50 +24,50 @@ import (
 	"fyne.io/fyne/widget"
 )
 
-var InstalledColumn, StatusColumn, InstalledVersionColumn, RecentVersionColumn, RecentVersionReleaseDateColumn *widget.Box
+var installedColumn, statusColumn, installedVersionColumn, recentVersionColumn, recentVersionReleaseDateColumn *widget.Box
 var a fyne.App
-var OtherSoftwareText string
+var otherSoftwareText string
 
 func outputResults(installedSoftwareMappings []installedSoftwareMapping) {
-	OtherSoftwareText = ""
+	otherSoftwareText = ""
 	for _, entry := range installedSoftwareMappings {
 		if entry.Status > 1 {
 			// write out unknown software only to second windowInfo
-			OtherSoftwareText += entry.Name
+			otherSoftwareText += entry.Name
 			if entry.InstalledSoftware.DisplayVersion != "" {
-				OtherSoftwareText += " (Version " + entry.InstalledSoftware.DisplayVersion + ")"
+				otherSoftwareText += " (Version " + entry.InstalledSoftware.DisplayVersion + ")"
 			}
-			OtherSoftwareText += "\n"
+			otherSoftwareText += "\n"
 		} else {
 			// show on main window
-			InstalledColumn.Append(widget.NewLabel(entry.Name))
+			installedColumn.Append(widget.NewLabel(entry.Name))
 			if entry.Status == 0 {
-				StatusColumn.Append(widget.NewLabelWithStyle(
+				statusColumn.Append(widget.NewLabelWithStyle(
 					"Outdated",
 					fyne.TextAlignLeading,
 					fyne.TextStyle{Bold: true}))
 			} else if entry.Status == 1 {
-				StatusColumn.Append(widget.NewLabelWithStyle("Up-to-date",
+				statusColumn.Append(widget.NewLabelWithStyle("Up-to-date",
 					fyne.TextAlignLeading,
 					fyne.TextStyle{Bold: false}))
 			}
 			if entry.InstalledSoftware.DisplayVersion != "" {
-				InstalledVersionColumn.Append(widget.NewLabel(entry.InstalledSoftware.DisplayVersion))
+				installedVersionColumn.Append(widget.NewLabel(entry.InstalledSoftware.DisplayVersion))
 			} else {
-				InstalledVersionColumn.Append(widget.NewLabel("no version found"))
+				installedVersionColumn.Append(widget.NewLabel("no version found"))
 			}
 			if entry.MappedStatus.Version != "" {
-				RecentVersionColumn.Append(widget.NewLabel(
+				recentVersionColumn.Append(widget.NewLabel(
 					entry.MappedStatus.Version))
 			} else {
-				RecentVersionColumn.Append(widget.NewLabel("not available"))
+				recentVersionColumn.Append(widget.NewLabel("not available"))
 			}
 
 			if entry.MappedStatus.Released != "" {
-				RecentVersionReleaseDateColumn.Append(widget.NewLabel(
+				recentVersionReleaseDateColumn.Append(widget.NewLabel(
 					entry.MappedStatus.Released))
 			} else {
-				RecentVersionColumn.Append(widget.NewLabel("not available"))
+				recentVersionColumn.Append(widget.NewLabel("not available"))
 			}
 		}
 	}
@@ -77,33 +77,33 @@ func createFyneAppWindow() fyne.Window {
 	a = app.New()
 	a.Settings().SetTheme(theme.LightTheme())
 
-	InstalledColumn = widget.NewVBox(widget.NewLabelWithStyle(
+	installedColumn = widget.NewVBox(widget.NewLabelWithStyle(
 		"Installed Software                     ",
 		fyne.TextAlignLeading,
 		fyne.TextStyle{Bold: true}))
-	StatusColumn = widget.NewVBox(widget.NewLabelWithStyle(
+	statusColumn = widget.NewVBox(widget.NewLabelWithStyle(
 		"Status                       ",
 		fyne.TextAlignLeading,
 		fyne.TextStyle{Bold: true}))
-	InstalledVersionColumn = widget.NewVBox(widget.NewLabelWithStyle(
+	installedVersionColumn = widget.NewVBox(widget.NewLabelWithStyle(
 		"Installed Version    ",
 		fyne.TextAlignLeading,
 		fyne.TextStyle{Bold: true}))
-	RecentVersionColumn = widget.NewVBox(widget.NewLabelWithStyle(
+	recentVersionColumn = widget.NewVBox(widget.NewLabelWithStyle(
 		"Recent Version       ",
 		fyne.TextAlignLeading,
 		fyne.TextStyle{Bold: true}))
-	RecentVersionReleaseDateColumn = widget.NewVBox(widget.NewLabelWithStyle(
+	recentVersionReleaseDateColumn = widget.NewVBox(widget.NewLabelWithStyle(
 		"Release Date",
 		fyne.TextAlignLeading,
 		fyne.TextStyle{Bold: true}))
 
 	appList := widget.NewHBox(
-		InstalledColumn,
-		StatusColumn,
-		InstalledVersionColumn,
-		RecentVersionColumn,
-		RecentVersionReleaseDateColumn,
+		installedColumn,
+		statusColumn,
+		installedVersionColumn,
+		recentVersionColumn,
+		recentVersionReleaseDateColumn,
 	)
 
 	top := widget.NewVBox(widget.NewButton("Quit", func() {
@@ -125,7 +125,7 @@ func createFyneAppWindow() fyne.Window {
 func showOtherSoftware() {
 	// other software window
 	otherWin := a.NewWindow("Other installed software")
-	grid := widget.NewTextGridFromString(OtherSoftwareText)
+	grid := widget.NewTextGridFromString(otherSoftwareText)
 	grid.ShowLineNumbers = true
 	otherWin.SetContent(widget.NewScrollContainer(fyne.NewContainerWithLayout(
 		layout.NewBorderLayout(nil, nil, nil, nil), grid)))
