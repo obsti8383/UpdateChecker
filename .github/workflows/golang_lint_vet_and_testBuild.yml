@@ -35,12 +35,12 @@ jobs:
       run: |
         go version
         go get -d
-        go get github.com/josephspurrier/goversioninfo/cmd/goversioninfo
-              
+        go install github.com/josephspurrier/goversioninfo/cmd/goversioninfo@latest
+                      
     # Run vet & lint on the code
     - name: Run vet & lint
       run: |
-        go get golang.org/x/lint/golint
+        go install golang.org/x/lint/golint@latest
         go vet .
         golint .
 

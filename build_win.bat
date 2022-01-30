@@ -7,8 +7,8 @@ set GOARCH=amd64
 set CGO_ENABLED=1
 
 go clean
-go get
-go get github.com/josephspurrier/goversioninfo/cmd/goversioninfo
+go get -d
+go install github.com/josephspurrier/goversioninfo/cmd/goversioninfo@latest
 go fmt
 go generate
 go build --ldflags "-s -w -extldflags '-static' -H windowsgui" -o UpdateChecker.exe
