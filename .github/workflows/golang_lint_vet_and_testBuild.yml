@@ -35,14 +35,17 @@ jobs:
       run: |
         go version
         go get -d
+        go get github.com/josephspurrier/goversioninfo/cmd/goversioninfo
               
     # Run vet & lint on the code
     - name: Run vet & lint
       run: |
-        go install golang.org/x/lint/golint
+        go get golang.org/x/lint/golint
         go vet .
         golint .
 
     # Run build of the application
     - name: Run build
-      run: go build . 
+      run: |
+        go generate
+        go build --ldflags "-s -w -extldflags '-static' -H windowsgui" -o UpdateChecker.exe
