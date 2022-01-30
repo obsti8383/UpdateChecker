@@ -34,12 +34,12 @@ jobs:
     - name: Install dependencies
       run: |
         go version
-        go get
+        go get -d
               
     # Run vet & lint on the code
     - name: Run vet & lint
       run: |
-        go get -u golang.org/x/lint/golint
+        go install golang.org/x/lint/golint
         go vet .
         golint .
 
