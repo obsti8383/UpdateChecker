@@ -59,9 +59,17 @@ func getWindowsVersion() (windowsVersion WindowsVersion, err error) {
 		return WindowsVersion{0, 0, 0, cb, "", pn}, errors.New("Could not get version information from registry - CurrentMajorVersionNumber")
 	}
 
-	relID, _, err := k.GetStringValue("ReleaseId")
-	if err != nil {
-		return WindowsVersion{maj, 0, 0, cb, "", pn}, errors.New("Could not get version information from registry - ReleaseId")
+	// since 20H2 MS has messed up version numbering - working around this here
+	// DisplayVersion seems to be new. We take this field, if available, otherwise ReleaseID
+	relID := ""
+	relDisplayVersion, _, _ := k.GetStringValue("DisplayVersion")
+	if relDisplayVersion != "" {
+		relID = relDisplayVersion
+	} else {
+		relID, _, err = k.GetStringValue("ReleaseId")
+		if err != nil {
+			return WindowsVersion{maj, 0, 0, cb, "", pn}, errors.New("Could not get version information from registry - ReleaseId")
+		}
 	}
 
 	ubr, _, err := k.GetIntegerValue("UBR")

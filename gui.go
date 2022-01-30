@@ -67,7 +67,7 @@ func outputResults(installedSoftwareMappings []installedSoftwareMapping) {
 				recentVersionReleaseDateColumn.Append(widget.NewLabel(
 					entry.MappedStatus.Released))
 			} else {
-				recentVersionColumn.Append(widget.NewLabel("not available"))
+				recentVersionReleaseDateColumn.Append(widget.NewLabel("not available"))
 			}
 		}
 	}
@@ -126,10 +126,11 @@ func showOtherSoftware() {
 	// other software window
 	otherWin := a.NewWindow("Other installed software")
 	grid := widget.NewTextGridFromString(otherSoftwareText)
-	grid.ShowLineNumbers = true
+	//grid.ShowLineNumbers = true
 	otherWin.SetContent(widget.NewScrollContainer(fyne.NewContainerWithLayout(
 		layout.NewBorderLayout(nil, nil, nil, nil), grid)))
-	otherWin.Resize(fyne.NewSize(1024, 600))
+	otherWin.Resize(fyne.NewSize(1200, 600))
+	//otherWin.FullScreen()
 
 	otherWin.Show()
 }

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-//go:generate goversioninfo -icon=icon.ico
+//go:generate goversioninfo -icon=icon.ico -64
 
 package main
 
@@ -29,7 +29,7 @@ import (
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
 )
 
-const version = "0.2.3"
+const version = "0.2.5"
 
 const logpath = "UpdateChecker.log"
 
@@ -150,8 +150,7 @@ func main2() {
 	newMappings = append(newMappings, windowsMapping)
 	installedSoftwareMappings = append(newMappings, installedSoftwareMappings...)
 
-	// write results to HTML file and open in browser
-	//outputResultsInBrowser(installedSoftwareMappings)
+	// show results
 	outputResults(installedSoftwareMappings)
 
 }
