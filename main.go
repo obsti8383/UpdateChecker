@@ -169,7 +169,7 @@ func doSelfUpdate() {
 		// latest version is the same as current version. It means current binary is up to date.
 		Info.Println("Current binary is the latest version", version)
 	} else {
-		Info.Println("Successfully updated to version", latest.Version)
+		Info.Println("Successfully updated to version", latest.Version, "from version", version)
 		Info.Println("Release note:\n", latest.ReleaseNotes)
 	}
 }
