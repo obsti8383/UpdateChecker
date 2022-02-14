@@ -2,15 +2,15 @@
 	"FixedFileInfo":
 	{
 		"FileVersion": {
-			"Major": 1,
-			"Minor": 0,
-			"Patch": 0,
+			"Major": 0,
+			"Minor": 2,
+			"Patch": 6,
 			"Build": 0
 		},
 		"ProductVersion": {
-			"Major": 1,
-			"Minor": 0,
-			"Patch": 0,
+			"Major": 0,
+			"Minor": 2,
+			"Patch": 6,
 			"Build": 0
 		},
 		"FileFlagsMask": "3f",
@@ -31,7 +31,7 @@
 		"OriginalFilename": "",
 		"PrivateBuild": "",
 		"ProductName": "Update Checker",
-		"ProductVersion": "v1.0.0.0",
+		"ProductVersion": "v0.2.6.0",
 		"SpecialBuild": ""
 	},
 	"VarFileInfo":

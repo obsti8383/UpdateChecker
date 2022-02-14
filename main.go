@@ -19,6 +19,7 @@
 package main
 
 import (
+	_ "embed"
 	"io"
 	"log"
 	"os"
@@ -29,7 +30,8 @@ import (
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
 )
 
-const version = "0.2.5"
+//go:embed version.txt
+var version string
 
 const logpath = "UpdateChecker.log"
 
